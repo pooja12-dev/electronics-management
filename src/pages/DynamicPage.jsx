@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import SystemOverview from "./AdminPages/SystemOverview";
+import UserManagement from "./AdminPages/UserManagement";
+import SecuritySettings from "./AdminPages/SecuritySettings";
+import Invoices from "./AdminPages/invoices";
+import Logs from "./AdminPages/Logs";
 
 const DynamicPage = () => {
   const { pageKey } = useParams(); // Get the menu item from the URL
@@ -44,15 +48,23 @@ const DynamicPage = () => {
       case "system-overview":
         return <SystemOverview />;
       case "user-management":
-        return <div>Admin User Management</div>;
+        return <UserManagement />;
       case "security-settings":
-        return <div>Admin Security Settings</div>;
+        return <SecuritySettings />;
       case "configuration":
         return <div>Admin Configuration</div>;
       case "invoices":
-        return <div>Admin Invoices</div>;
+        return (
+          <div>
+            <Invoices />
+          </div>
+        );
       case "logs":
-        return <div>Admin Logs</div>;
+        return (
+          <div>
+            <Logs />
+          </div>
+        );
       default:
         return <div>Page Not Found</div>;
     }

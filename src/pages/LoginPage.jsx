@@ -1,11 +1,14 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import CommonForm from "../components/CommonForm";
 
 const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [selectedRole, setSelectedRole] = useState("user");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  // Available roles for selection
   const roles = [
     { id: "administrator", label: "Administrator", icon: "🔑" },
     { id: "manager", label: "Manager", icon: "📊" },
@@ -15,83 +18,50 @@ const LoginPage = () => {
     { id: "employee", label: "Employee", icon: "🏢" },
   ];
 
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (email && password) {
+      const sessionData = {
+        email,
+        role: selectedRole,
+        timestamp: new Date().toISOString(),
+      };
+      sessionStorage.setItem("userSession", JSON.stringify(sessionData));
+      navigate(`/dashboard/${selectedRole}`);
+    } else {
+      alert("Please enter valid credentials.");
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
-      {/* Left side - decorative area for larger screens */}
+      {/* Left side */}
       <div className="hidden md:flex md:w-1/2 bg-blue-600 justify-center items-center">
         <div className="max-w-md px-8">
-          <h1 className="text-4xl font-bold text-white mb-6">
-            Welcome to Our Platform
-          </h1>
+          <h1 className="text-4xl font-bold text-white mb-6">Welcome</h1>
           <p className="text-blue-100 mb-8">
-            Access your role-specific dashboard and manage all your tasks in one
-            place. Your experience is customized based on your role in the
-            organization.
+            Role-specific management platform.
           </p>
-          <div className="bg-white/10 p-6 rounded-lg backdrop-blur-sm">
-            <p className="text-white font-medium">
-              "This platform has streamlined our workflow and improved team
-              collaboration significantly."
-            </p>
-            <p className="text-blue-200 mt-2">— Jane Smith, Project Manager</p>
-          </div>
         </div>
       </div>
 
-      {/* Right side - form area */}
+      {/* Right side */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-4 sm:p-6 md:p-8 lg:p-12">
         <div className="w-full max-w-md">
-          {/* Mobile only header */}
-          <div className="block md:hidden mb-8 text-center">
-            <h1 className="text-3xl font-bold text-gray-800">
-              Welcome to Our Platform
-            </h1>
-            <p className="text-gray-600 mt-2">Please sign in to continue</p>
-          </div>
-
-          {/* Login/Signup Toggle */}
-          <div className="bg-white rounded-xl shadow-md p-1 mb-6 flex">
-            <button
-              onClick={() => setIsLogin(true)}
-              className={`w-1/2 py-3 text-center rounded-lg font-medium transition-all duration-300 ${
-                isLogin
-                  ? "bg-blue-600 text-white shadow-sm"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              Login
-            </button>
-            <button
-              onClick={() => setIsLogin(false)}
-              className={`w-1/2 py-3 text-center rounded-lg font-medium transition-all duration-300 ${
-                !isLogin
-                  ? "bg-blue-600 text-white shadow-sm"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              Signup
-            </button>
-          </div>
-
-          {/* Role Selection */}
           <div className="bg-white rounded-xl shadow-md p-6 mb-6">
             <h2 className="text-lg font-medium text-gray-700 mb-4">
               {isLogin ? "Login as:" : "Register as:"}
             </h2>
-
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-2">
               {roles.map((role) => (
                 <div
                   key={role.id}
                   onClick={() => setSelectedRole(role.id)}
-                  className={`
-                    cursor-pointer rounded-lg border-2 p-3 transition-all duration-200 flex flex-col items-center
-                    ${
-                      selectedRole === role.id
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200 hover:border-gray-300"
-                    }
-                  `}
+                  className={`cursor-pointer rounded-lg border-2 p-3 flex flex-col items-center ${
+                    selectedRole === role.id
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200"
+                  }`}
                 >
                   <div className="text-xl mb-1">{role.icon}</div>
                   <span className="font-medium text-sm text-center">
@@ -102,18 +72,51 @@ const LoginPage = () => {
             </div>
           </div>
 
-          {/* Form Area */}
-          <div className="bg-white rounded-xl shadow-md p-6">
-            {/* The enhanced CommonForm component will be rendered here */}
-            <CommonForm isLogin={isLogin} selectedRole={selectedRole} />
-          </div>
-
-          {/* Help text */}
-          <p className="text-center text-sm text-gray-500 mt-6">
-            {isLogin
-              ? "Don't have an account? Click Signup above"
-              : "Already have an account? Click Login above"}
-          </p>
+          <form
+            onSubmit={handleLogin}
+            className="bg-white rounded-xl shadow-md p-6"
+          >
+            <div className="mb-4">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Email Address
+              </label>
+              <input
+                id="email"
+                type="email"
+                placeholder="your@email.com"
+                className="w-full p-3 border rounded-md"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                className="w-full p-3 border rounded-md"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700"
+            >
+              {isLogin ? "Sign In" : "Create Account"}
+            </button>
+          </form>
         </div>
       </div>
     </div>

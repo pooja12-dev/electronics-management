@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import DynamicPage from "./DynamicPage";
 
 const Dashboard = () => {
   const { role } = useParams(); // Get role from URL parameter
+  localStorage.setItem("role", role);
+  console.log("items set in localstorage from dashboard");
+
   const navigate = useNavigate();
   const [userName, setUserName] = useState("User");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  console.log("role", role);
 
   // Quick stats based on user role
   const roleBasedStats = {
@@ -155,41 +162,41 @@ const Dashboard = () => {
   // Role-specific menu items
   const menuItems = {
     administrator: [
-      { label: "System Overview", icon: "📊" },
-      { label: "User Management", icon: "👥" },
-      { label: "Security Settings", icon: "🔒" },
-      { label: "Configuration", icon: "⚙️" },
-      { label: "Invoices", icon: "📝" },
-      { label: "Logs", icon: "📜" },
+      { label: "System Overview", icon: "📊", key: "system-overview" },
+      { label: "User Management", icon: "👥", key: "user-management" },
+      { label: "Security Settings", icon: "🔒", key: "security-settings" },
+      { label: "Configuration", icon: "⚙️", key: "configuration" },
+      { label: "Invoices", icon: "📝", key: "invoices" },
+      { label: "Logs", icon: "📜", key: "logs" },
     ],
     manager: [
-      { label: "Team Dashboard", icon: "👥" },
-      { label: "Projects", icon: "📁" },
-      { label: "Team Data", icon: "📊" },
-      { label: "Tasks", icon: "⏱️" },
-      { label: "Inventory", icon: "💰" },
-      { label: "Reports", icon: "📝" },
+      { label: "Team Dashboard", icon: "👥", key: "team-dashboard" },
+      { label: "Projects", icon: "📁", key: "projects" },
+      { label: "Team Data", icon: "📊", key: "team-data" },
+      { label: "Tasks", icon: "⏱️", key: "tasks" },
+      { label: "Inventory", icon: "💰", key: "inventory" },
+      { label: "Reports", icon: "📝", key: "reports" },
     ],
     supervisor: [
-      { label: "My Tasks", icon: "✓" },
-      { label: "Calendar", icon: "📅" },
-      { label: "Production Stats", icon: "💬" },
-      { label: "Reports submission", icon: "📁" },
-      { label: "Assign duties", icon: "👥" },
+      { label: "My Tasks", icon: "✓", key: "my-tasks" },
+      { label: "Calendar", icon: "📅", key: "calendar" },
+      { label: "Production Stats", icon: "💬", key: "production-stats" },
+      { label: "Reports submission", icon: "📁", key: "reports-submission" },
+      { label: "Assign duties", icon: "👥", key: "assign-duties" },
     ],
     deliveryOfficer: [
-      { label: "Manage Shipments", icon: "📈" },
-      { label: "View order", icon: "📊" },
-      { label: "Generate invoices", icon: "🗄️" },
+      { label: "Manage Shipments", icon: "📈", key: "manage-shipments" },
+      { label: "View order", icon: "📊", key: "view-order" },
+      { label: "Generate invoices", icon: "🗄️", key: "generate-invoices" },
     ],
     vendor: [
-      { label: "Stock needs", icon: "📁" },
-      { label: "Item Status", icon: "💵" },
-      { label: "Submit pricingt", icon: "🛠️" },
+      { label: "Stock needs", icon: "📁", key: "stock-needs" },
+      { label: "Item Status", icon: "💵", key: "item-status" },
+      { label: "Submit pricing", icon: "🛠️", key: "submit-pricing" },
     ],
     employee: [
-      { label: "Assigned tasks", icon: "📁" },
-      { label: "Progress", icon: "💵" },
+      { label: "Assigned tasks", icon: "📁", key: "assigned-tasks" },
+      { label: "Progress", icon: "💵", key: "progress" },
     ],
   };
 
@@ -382,20 +389,29 @@ const Dashboard = () => {
           </div>
           <nav className="mt-2 px-3 pb-4">
             {currentMenuItems.map((item, index) => (
-              <a
+              <Link
                 key={index}
-                href="#"
+                to={`/page/${item.key}`} // Dynamic route based on the menu item key
                 className="group flex items-center px-3 py-3 text-sm font-medium rounded-md text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+                onClick={() => {
+                  // Optional: Additional logic when clicking an item (e.g., logging, tracking)
+                  console.log(`Navigating to ${item.label}`);
+                }}
               >
                 <span className="mr-3">{item.icon}</span>
                 {item.label}
-              </a>
+              </Link>
             ))}
           </nav>
         </aside>
 
         {/* Main Content */}
         <main className="flex-1 pb-8">
+          <Routes>
+            <Route path="/dashboard/:role" element={<Dashboard />} />
+            <Route path="/page/:pageKey" element={<DynamicPage />} />
+            {/* You can add other static routes here if needed */}
+          </Routes>
           {/* Welcome Banner */}
           <div className="bg-white shadow-sm">
             <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">

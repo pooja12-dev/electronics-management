@@ -10,7 +10,7 @@ const LoginPage = () => {
     { id: "administrator", label: "Administrator", icon: "🔑" },
     { id: "manager", label: "Manager", icon: "📊" },
     { id: "supervisor", label: "Supervisor", icon: "👤" },
-    { id: "do", label: "Delivery officer", icon: "📈" },
+    { id: "deliveryOfficer", label: "Delivery officer", icon: "📈" },
     { id: "vendor", label: "Vendor", icon: "🏢" },
     { id: "employee", label: "Employee", icon: "🏢" },
   ];

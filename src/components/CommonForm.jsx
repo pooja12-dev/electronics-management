@@ -99,6 +99,7 @@ const CommonForm = ({ isLogin, selectedRole }) => {
         password,
         selectedRole
       );
+      
 
       // Navigate to role-specific dashboard
       navigate(`/dashboard/${selectedRole}`);

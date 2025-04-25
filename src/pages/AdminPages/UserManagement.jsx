@@ -1,24 +1,34 @@
 import { useState, useEffect } from "react";
 import {
-  Bell,
-  Search,
-  Filter,
-  User,
   UserPlus,
-  Edit,
   Trash2,
-  MoreHorizontal,
+  Edit,
+  Save,
+  XCircle,
+  ChevronLeft,
+  ChevronRight,
+  Lock,
+  Unlock,
 } from "lucide-react";
 
 const UserManagement = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedRole, setSelectedRole] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newUser, setNewUser] = useState({
+    name: "",
+    email: "",
+    role: "Employee",
+  });
+  const [errors, setErrors] = useState({});
+  const [editingUserId, setEditingUserId] = useState(null);
+  const [editingUserData, setEditingUserData] = useState({});
+  const itemsPerPage = 5;
 
   useEffect(() => {
-    // Simulating data fetch
     setTimeout(() => {
       setUsers([
         {
@@ -27,7 +37,7 @@ const UserManagement = () => {
           email: "john@example.com",
           role: "Admin",
           status: "Active",
-          lastLogin: "2 hours ago",
+          permission: "Granted",
         },
         {
           id: 2,
@@ -35,298 +45,331 @@ const UserManagement = () => {
           email: "emily@example.com",
           role: "Manager",
           status: "Active",
-          lastLogin: "1 day ago",
-        },
-        {
-          id: 3,
-          name: "Michael Brown",
-          email: "michael@example.com",
-          role: "Supervisor",
-          status: "Inactive",
-          lastLogin: "5 days ago",
-        },
-        {
-          id: 4,
-          name: "Sarah Wilson",
-          email: "sarah@example.com",
-          role: "Delivery Officer",
-          status: "Active",
-          lastLogin: "3 hours ago",
-        },
-        {
-          id: 5,
-          name: "David Lee",
-          email: "david@example.com",
-          role: "Vendor",
-          status: "Active",
-          lastLogin: "Just now",
-        },
-        {
-          id: 6,
-          name: "Jessica Taylor",
-          email: "jessica@example.com",
-          role: "Employee",
-          status: "Inactive",
-          lastLogin: "1 week ago",
+          permission: "Revoked",
         },
       ]);
       setLoading(false);
     }, 1000);
   }, []);
 
-  const filteredUsers = users.filter((user) => {
-    return (
+  const validateInputs = (field, value) => {
+    let error = "";
+    if (!value.trim()) {
+      error = `${field} is required`;
+    } else if (
+      field === "Email" &&
+      !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value)
+    ) {
+      error = "Invalid email format";
+    }
+    return error;
+  };
+
+  const handleAddUser = () => {
+    const nameError = validateInputs("Name", newUser.name);
+    const emailError = validateInputs("Email", newUser.email);
+
+    if (nameError || emailError) {
+      setErrors({ name: nameError, email: emailError });
+      return;
+    }
+
+    setUsers([
+      ...users,
+      {
+        ...newUser,
+        id: users.length + 1,
+        status: "Active",
+        permission: "Revoked",
+      },
+    ]);
+    setIsModalOpen(false);
+    setNewUser({ name: "", email: "", role: "Employee" });
+    setErrors({});
+  };
+
+  const handleEditUser = (id) => {
+    setEditingUserId(id);
+    const user = users.find((u) => u.id === id);
+    setEditingUserData({ ...user });
+  };
+
+  const saveEditedUser = () => {
+    setUsers(
+      users.map((u) =>
+        u.id === editingUserId ? { ...u, ...editingUserData } : u
+      )
+    );
+    setEditingUserId(null);
+    setEditingUserData({});
+  };
+
+  const togglePermission = (id) => {
+    setUsers(
+      users.map((u) =>
+        u.id === id
+          ? {
+              ...u,
+              permission: u.permission === "Granted" ? "Revoked" : "Granted",
+            }
+          : u
+      )
+    );
+  };
+
+  const deleteUser = (id) => {
+    setUsers(users.filter((u) => u.id !== id));
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setNewUser({ name: "", email: "", role: "Employee" });
+    setErrors({});
+  };
+
+  const filteredUsers = users.filter(
+    (user) =>
       (search === "" ||
         user.name.toLowerCase().includes(search.toLowerCase()) ||
         user.email.toLowerCase().includes(search.toLowerCase())) &&
       (selectedRole === "All" || user.role === selectedRole)
-    );
-  });
+  );
 
-  const roles = [
-    "All",
-    "Admin",
-    "Manager",
-    "Supervisor",
-    "Delivery Officer",
-    "Vendor",
-    "Employee",
-  ];
+  const totalItems = filteredUsers.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage) || 0;
+  const paginatedUsers = filteredUsers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
-    <div
-      className={`w-full ${
-        isDarkMode ? "bg-gray-800 text-white" : "bg-gray-50 text-gray-800"
-      }`}
-    >
-      {/* Content Header */}
+    <div className="w-full bg-gray-50 text-gray-800">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">User Management</h1>
-
-        <div className="flex items-center gap-3">
-          <button className="px-4 py-2 bg-indigo-600 text-white rounded-md flex items-center gap-2 hover:bg-indigo-700">
-            <UserPlus size={16} />
-            <span>Add User</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Search and Filter Bar */}
-      <div
-        className={`flex flex-col md:flex-row gap-4 items-center mb-6 p-4 rounded-lg ${
-          isDarkMode ? "bg-gray-700" : "bg-white"
-        } shadow`}
-      >
-        <div className="relative flex-grow">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search size={18} className="text-gray-400" />
-          </div>
-          <input
-            type="text"
-            className={`pl-10 pr-4 py-2 w-full rounded-md border ${
-              isDarkMode
-                ? "bg-gray-600 border-gray-500"
-                : "bg-white border-gray-300"
-            }`}
-            placeholder="Search users..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-sm">Role:</span>
-          <select
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
-            className={`rounded-md border px-3 py-2 ${
-              isDarkMode
-                ? "bg-gray-600 border-gray-500"
-                : "bg-white border-gray-300"
-            }`}
-          >
-            {roles.map((role) => (
-              <option key={role} value={role}>
-                {role}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <button className="flex items-center gap-2 px-4 py-2 rounded-md border">
-          <Filter size={16} />
-          <span>More Filters</span>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="px-4 py-2 bg-indigo-600 text-white rounded-md flex items-center gap-2 hover:bg-indigo-700"
+        >
+          <UserPlus size={16} />
+          <span>Add User</span>
         </button>
       </div>
 
-      {/* Users Table */}
-      <div
-        className={`rounded-lg shadow overflow-hidden ${
-          isDarkMode ? "bg-gray-700" : "bg-white"
-        }`}
-      >
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className={`${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}>
-              <tr>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-                >
-                  User
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-                >
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
+            <h2 className="text-xl font-semibold mb-4">Add New User</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  className={`w-full px-4 py-2 border rounded-md ${
+                    errors.name ? "border-red-500" : "border-gray-300"
+                  }`}
+                  placeholder="Enter user name"
+                  value={newUser.name}
+                  onChange={(e) =>
+                    setNewUser({ ...newUser, name: e.target.value })
+                  }
+                />
+                {errors.name && (
+                  <p className="text-sm text-red-500 mt-1">{errors.name}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  className={`w-full px-4 py-2 border rounded-md ${
+                    errors.email ? "border-red-500" : "border-gray-300"
+                  }`}
+                  placeholder="Enter user email"
+                  value={newUser.email}
+                  onChange={(e) =>
+                    setNewUser({ ...newUser, email: e.target.value })
+                  }
+                />
+                {errors.email && (
+                  <p className="text-sm text-red-500 mt-1">{errors.email}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
                   Role
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                </label>
+                <select
+                  value={newUser.role}
+                  onChange={(e) =>
+                    setNewUser({ ...newUser, role: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border rounded-md"
                 >
-                  Status
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-                >
-                  Last Login
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-                >
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody
-              className={`divide-y ${
-                isDarkMode ? "divide-gray-600" : "divide-gray-200"
-              }`}
-            >
-              {loading ? (
-                <tr>
-                  <td colSpan="5" className="px-6 py-4 text-center">
-                    Loading users...
-                  </td>
-                </tr>
-              ) : filteredUsers.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="px-6 py-4 text-center">
-                    No users found
-                  </td>
-                </tr>
-              ) : (
-                filteredUsers.map((user) => (
-                  <tr
-                    key={user.id}
-                    className={`hover:${
-                      isDarkMode ? "bg-gray-600" : "bg-gray-50"
+                  {["Admin", "Manager", "Supervisor", "Employee"].map(
+                    (role) => (
+                      <option key={role} value={role}>
+                        {role}
+                      </option>
+                    )
+                  )}
+                </select>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end space-x-4">
+              <button
+                onClick={handleModalClose}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddUser}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+              >
+                Add User
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-left bg-white shadow-md rounded-md">
+          <thead>
+            <tr>
+              <th className="px-4 py-2">Name</th>
+              <th className="px-4 py-2">Email</th>
+              <th className="px-4 py-2">Role</th>
+              <th className="px-4 py-2">Permission</th>
+              <th className="px-4 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {paginatedUsers.map((user) => (
+              <tr key={user.id} className="hover:bg-gray-100">
+                <td className="px-4 py-2">
+                  {editingUserId === user.id ? (
+                    <input
+                      type="text"
+                      value={editingUserData.name}
+                      onChange={(e) =>
+                        setEditingUserData({
+                          ...editingUserData,
+                          name: e.target.value,
+                        })
+                      }
+                      className="px-2 py-1 border rounded-md"
+                    />
+                  ) : (
+                    user.name
+                  )}
+                </td>
+                <td className="px-4 py-2">
+                  {editingUserId === user.id ? (
+                    <input
+                      type="email"
+                      value={editingUserData.email}
+                      onChange={(e) =>
+                        setEditingUserData({
+                          ...editingUserData,
+                          email: e.target.value,
+                        })
+                      }
+                      className="px-2 py-1 border rounded-md"
+                    />
+                  ) : (
+                    user.email
+                  )}
+                </td>
+                <td className="px-4 py-2">
+                  {editingUserId === user.id ? (
+                    <select
+                      value={editingUserData.role}
+                      onChange={(e) =>
+                        setEditingUserData({
+                          ...editingUserData,
+                          role: e.target.value,
+                        })
+                      }
+                      className="px-2 py-1 border rounded-md"
+                    >
+                      {["Admin", "Manager", "Supervisor", "Employee"].map(
+                        (role) => (
+                          <option key={role} value={role}>
+                            {role}
+                          </option>
+                        )
+                      )}
+                    </select>
+                  ) : (
+                    user.role
+                  )}
+                </td>
+                <td className="px-4 py-2">
+                  <button
+                    onClick={() => togglePermission(user.id)}
+                    className={`px-2 py-1 rounded-md ${
+                      user.permission === "Granted"
+                        ? "bg-green-200"
+                        : "bg-red-200"
                     }`}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                          <span className="text-indigo-600 font-medium">
-                            {user.name.charAt(0)}
-                          </span>
-                        </div>
-                        <div className="ml-4">
-                          <div className="font-medium">{user.name}</div>
-                          <div className="text-sm text-gray-500">
-                            {user.email}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 py-1 text-xs rounded-full ${
-                          user.role === "Admin"
-                            ? "bg-purple-100 text-purple-800"
-                            : user.role === "Manager"
-                            ? "bg-blue-100 text-blue-800"
-                            : user.role === "Supervisor"
-                            ? "bg-green-100 text-green-800"
-                            : user.role === "Delivery Officer"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : user.role === "Vendor"
-                            ? "bg-orange-100 text-orange-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 py-1 text-xs rounded-full ${
-                          user.status === "Active"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {user.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      {user.lastLogin}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                      <div className="flex items-center gap-2">
-                        <button className="p-1 rounded-full hover:bg-gray-200">
-                          <Edit size={16} />
-                        </button>
-                        <button className="p-1 rounded-full hover:bg-gray-200">
-                          <Trash2 size={16} className="text-red-500" />
-                        </button>
-                        <button className="p-1 rounded-full hover:bg-gray-200">
-                          <MoreHorizontal size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                    {user.permission}
+                  </button>
+                </td>
+                <td className="px-4 py-2 flex space-x-2">
+                  {editingUserId === user.id ? (
+                    <button
+                      onClick={saveEditedUser}
+                      className="text-green-600 hover:text-green-800"
+                    >
+                      <Save size={16} />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleEditUser(user.id)}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      <Edit size={16} />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => deleteUser(user.id)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-        {/* Pagination */}
-        <div className="px-6 py-3 flex items-center justify-between border-t">
-          <div className="flex-1 flex justify-between sm:hidden">
-            <button className="px-4 py-2 border rounded-md">Previous</button>
-            <button className="ml-3 px-4 py-2 border rounded-md">Next</button>
-          </div>
-          <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm">
-                Showing <span className="font-medium">1</span> to{" "}
-                <span className="font-medium">{filteredUsers.length}</span> of{" "}
-                <span className="font-medium">{filteredUsers.length}</span>{" "}
-                results
-              </p>
-            </div>
-            <div>
-              <nav
-                className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-                aria-label="Pagination"
-              >
-                <button className="px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                  Previous
-                </button>
-                <button className="px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                  1
-                </button>
-                <button className="px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                  Next
-                </button>
-              </nav>
-            </div>
-          </div>
-        </div>
+      <div className="flex justify-between items-center mt-4">
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 disabled:opacity-50"
+        >
+          <ChevronLeft size={16} />
+        </button>
+        <span>
+          Page {totalItems > 0 ? currentPage : 0} of {totalPages}
+        </span>
+        <button
+          onClick={() =>
+            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+          }
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 disabled:opacity-50"
+        >
+          <ChevronRight size={16} />
+        </button>
       </div>
     </div>
   );

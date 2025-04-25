@@ -5,6 +5,12 @@ import UserManagement from "./AdminPages/UserManagement";
 import SecuritySettings from "./AdminPages/SecuritySettings";
 import Invoices from "./AdminPages/invoices";
 import Logs from "./AdminPages/Logs";
+import TeamDashboard from "./ManagerPages/TeamDashboard";
+import Projects from "./ManagerPages/Projects";
+import TeamData from "./ManagerPages/TeamData";
+import Tasks from "./ManagerPages/Tasks";
+import Inventory from "./ManagerPages/Inventory";
+import Reports from "./ManagerPages/Reports";
 
 const DynamicPage = () => {
   const { pageKey } = useParams(); // Get the menu item from the URL
@@ -73,17 +79,41 @@ const DynamicPage = () => {
   const renderManagerPage = (key) => {
     switch (key) {
       case "team-dashboard":
-        return <div>Manager Team Dashboard</div>;
+        return (
+          <div>
+            <TeamDashboard />
+          </div>
+        );
       case "projects":
-        return <div>Manager Projects</div>;
+        return (
+          <div>
+            <Projects />
+          </div>
+        );
       case "team-data":
-        return <div>Manager Team Data</div>;
+        return (
+          <div>
+            <TeamData />
+          </div>
+        );
       case "tasks":
-        return <div>Manager Tasks</div>;
+        return (
+          <div>
+            <Tasks />
+          </div>
+        );
       case "inventory":
-        return <div>Manager Inventory</div>;
+        return (
+          <div>
+            <Inventory />
+          </div>
+        );
       case "reports":
-        return <div>Manager Reports</div>;
+        return (
+          <div>
+            <Reports />
+          </div>
+        );
       default:
         return <div>Page Not Found</div>;
     }

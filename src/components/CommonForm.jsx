@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+
+import { useNavigate, Link } from "react-router-dom";
 
 const CommonForm = ({ isLogin, selectedRole }) => {
   const [email, setEmail] = useState("");
@@ -99,7 +100,6 @@ const CommonForm = ({ isLogin, selectedRole }) => {
         password,
         selectedRole
       );
-      
 
       // Navigate to role-specific dashboard
       navigate(`/dashboard/${selectedRole}`);
@@ -191,9 +191,12 @@ const CommonForm = ({ isLogin, selectedRole }) => {
         )}
         {isLogin && !errors.password && (
           <div className="mt-1 text-right">
-            <a href="#" className="text-sm text-blue-600 hover:text-blue-800">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-blue-600 hover:text-blue-800"
+            >
               Forgot password?
-            </a>
+            </Link>
           </div>
         )}
       </div>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import SystemOverview from "./AdminPages/SystemOverview";
 
 const DynamicPage = () => {
   const { pageKey } = useParams(); // Get the menu item from the URL
@@ -41,7 +42,7 @@ const DynamicPage = () => {
   const renderAdminPage = (key) => {
     switch (key) {
       case "system-overview":
-        return <div>Admin System Overview</div>;
+        return <SystemOverview />;
       case "user-management":
         return <div>Admin User Management</div>;
       case "security-settings":

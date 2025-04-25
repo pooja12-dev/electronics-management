@@ -48,9 +48,6 @@ export default function Logs() {
         <div className="w-full max-w-5xl">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
             <div className="text-base sm:text-lg font-medium">System Logs</div>
-            <button className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition w-full sm:w-auto">
-              Download Logs
-            </button>
           </div>
           {/* Mobile (cards) */}
           <div className="block md:hidden space-y-4">

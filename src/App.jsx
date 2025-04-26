@@ -18,6 +18,8 @@ import TaskAssign from "./pages/AdminPages/TaskAssign"; // Import TaskAssign com
 import TableLayout from "./components/TableLayout";
 import Assignments from "./pages/AdminPages/Assignments";
 import InventoryDashboard from "./pages/AdminPages/InventoryManage";
+import ShipmentTrackingDashboard from "./pages/AdminPages/ShipmentsPage";
+import OrderManagement from "./pages/AdminPages/OrderManagement";
 
 const App = () => {
   const [role, setRole] = useState("administrator"); // Default role
@@ -67,6 +69,8 @@ const App = () => {
                 path="inventory-management"
                 element={<InventoryDashboard />}
               />
+              <Route path="shipments" element={<ShipmentTrackingDashboard />} />
+              <Route path="orders" element={<OrderManagement />} />
               {/* Added TaskAssign Route */}
             </Routes>
           </main>

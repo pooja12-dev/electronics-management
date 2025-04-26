@@ -14,6 +14,9 @@ import TotalUserAdmin from "./pages/TotalUserAdmin";
 import UserManagement from "./pages/AdminPages/UserManagement";
 import Invoices from "./pages/AdminPages/invoices";
 import Logs from "./pages/AdminPages/Logs";
+import TaskAssign from "./pages/AdminPages/TaskAssign"; // Import TaskAssign component
+import TableLayout from "./components/TableLayout";
+import Assignments from "./pages/AdminPages/Assignments";
 
 const App = () => {
   const [role, setRole] = useState("administrator"); // Default role
@@ -31,6 +34,9 @@ const App = () => {
     const isExcludedPath = excludedPaths.some((path) =>
       location.pathname.startsWith(path)
     );
+
+    console.log("Rendering AppContent");
+    console.log("Current location:", location.pathname);
 
     return (
       <div className="flex h-screen">
@@ -52,15 +58,11 @@ const App = () => {
               {/* Dashboard Routes */}
               <Route path="/dashboard" element={<Layout role={role} />} />
               <Route path="system-overview" element={<TotalUserAdmin />} />
-              <Route
-                path="user-management"
-                element={<UserManagement></UserManagement>}
-              />
-              <Route path="invoices" element={<Invoices></Invoices>} />
-              <Route path="reports" element={<Logs></Logs>} />
-              {/* <Route path="task-assignment" element={<Invoices></Invoices>} /> */}
-
-              {/* Add other routes as needed */}
+              <Route path="user-management" element={<UserManagement />} />
+              <Route path="invoices" element={<Invoices />} />
+              <Route path="reports" element={<Logs />} />
+              <Route path="task-assignment" element={<Assignments />} />{" "}
+              {/* Added TaskAssign Route */}
             </Routes>
           </main>
         </div>

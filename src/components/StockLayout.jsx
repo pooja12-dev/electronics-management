@@ -22,7 +22,31 @@ export default function StockLayout({ role }) {
 
   console.log("StockLayout rendered with role:", role);
 
-  // Load data from localStorage on component mount
+  const sampleProducts = [
+    {
+      name: "Product A",
+      sku: "SKU123",
+      quantity: 50,
+      reorderPoint: 20,
+      location: "Warehouse 1",
+    },
+    {
+      name: "Product B",
+      sku: "SKU456",
+      quantity: 10,
+      reorderPoint: 15,
+      location: "Warehouse 2",
+    },
+    {
+      name: "Product C",
+      sku: "SKU789",
+      quantity: 100,
+      reorderPoint: 30,
+      location: "Warehouse 3",
+    },
+  ];
+
+  // Load data from localStorage or use sample data
   useEffect(() => {
     console.log("Loading data from localStorage");
     try {
@@ -30,16 +54,17 @@ export default function StockLayout({ role }) {
       if (savedProducts) {
         const parsedProducts = JSON.parse(savedProducts);
         setProducts(parsedProducts);
-        console.log("Loaded products:", parsedProducts); // Log the loaded products
+        console.log("Loaded products:", parsedProducts);
       } else {
-        console.log("No products found in localStorage");
+        console.log("No products found in localStorage, using sample data");
+        setProducts(sampleProducts);
       }
     } catch (error) {
       console.error("Error loading products from localStorage:", error);
+      setProducts(sampleProducts);
     }
   }, []);
 
-  // Save to localStorage whenever products change
   useEffect(() => {
     console.log("Saving products to localStorage:", products);
     localStorage.setItem("inventoryProducts", JSON.stringify(products));
@@ -118,17 +143,21 @@ export default function StockLayout({ role }) {
     showNotification(`Quantity ${amount > 0 ? "increased" : "decreased"}`);
   };
 
-  // Render the component
-  console.log("Rendering layout for role:", role);
   return (
     <div className="min-h-screen bg-gray-50">
       {role === "administrator" && (
         <>
           <header className="bg-gray-800 text-white shadow-md">
-            <div className="container mx-auto px-4 py-4">
+            <div className="container mx-auto px-4 py-4 flex justify-between items-center">
               <h1 className="text-2xl font-bold">
                 Inventory Management System
               </h1>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+              >
+                Add Inventory
+              </button>
             </div>
           </header>
           <main className="container mx-auto px-4 py-6">
@@ -152,7 +181,71 @@ export default function StockLayout({ role }) {
             />
             <LowStockAlerts products={products} />
           </main>
-          {isModalOpen && <div>Modal is open</div>}
+          {isModalOpen && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+              <div className="bg-white p-6 rounded shadow-md w-full max-w-md">
+                <h2 className="text-2xl font-bold mb-4">
+                  {editingIndex !== null ? "Edit Product" : "Add New Product"}
+                </h2>
+                <div className="space-y-4">
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Product Name"
+                    value={newProduct.name}
+                    onChange={handleInputChange}
+                    className="w-full border p-2 rounded"
+                  />
+                  <input
+                    type="text"
+                    name="sku"
+                    placeholder="SKU"
+                    value={newProduct.sku}
+                    onChange={handleInputChange}
+                    className="w-full border p-2 rounded"
+                  />
+                  <input
+                    type="number"
+                    name="quantity"
+                    placeholder="Quantity"
+                    value={newProduct.quantity}
+                    onChange={handleInputChange}
+                    className="w-full border p-2 rounded"
+                  />
+                  <input
+                    type="number"
+                    name="reorderPoint"
+                    placeholder="Reorder Point"
+                    value={newProduct.reorderPoint}
+                    onChange={handleInputChange}
+                    className="w-full border p-2 rounded"
+                  />
+                  <input
+                    type="text"
+                    name="location"
+                    placeholder="Location"
+                    value={newProduct.location}
+                    onChange={handleInputChange}
+                    className="w-full border p-2 rounded"
+                  />
+                </div>
+                <div className="flex justify-end mt-4 space-x-2">
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-4 py-2 bg-gray-300 rounded"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={addProduct}
+                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                  >
+                    {editingIndex !== null ? "Update" : "Add"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
       {role === "vendor" && (
@@ -164,7 +257,6 @@ export default function StockLayout({ role }) {
             onDelete={deleteProduct}
             onAdjustQuantity={adjustQuantity}
           />
-          {/* <LowStockAlerts products={products} /> */}
         </main>
       )}
     </div>

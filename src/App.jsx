@@ -15,10 +15,12 @@ import Invoices from "./pages/AdminPages/invoices";
 import StockLayout from "./components/StockLayout";
 import Loader from "./components/Loader"; // ⬅️ import your loader file
 import TeamDataPage from "./pages/AdminPages/TeamData";
-
+import EmployeeProgressLayout from "./pages/AdminPages/EmployeeProgressLayout";
 function App() {
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true); // ⬅️ new loading state
+  // const role = "employee"; // or "manager" or "administrator"
+  const currentEmployeeId = 1;
 
   useEffect(() => {
     const savedRole = localStorage.getItem("role");
@@ -48,13 +50,22 @@ function App() {
           <Route path="invoices" element={<Invoices />} />
           <Route path="shipments" element={<ShipmentTrackingDashboard />} />
           <Route path="order-view" element={<OrderManagement />} />
-          <Route path="stock-needs" element={<StockLayout role={role} />} />
+          {/* <Route path="stock-needs" element={<StockLayout role={role} />} /> */}
           <Route path="teams-data" element={<TeamDataPage />} />
           <Route path="inventory-management" element={<InventoryDashboard />} />
           <Route path="assign-tasks" element={<TaskAssignment />} />
           <Route path="logs" element={<Logs />} />
           <Route path="security-settings" element={<SecuritySettings />} />
           <Route path="user-management" element={<UserManagement />} />
+          <Route
+            path="employee-progress"
+            element={
+              <EmployeeProgressLayout
+                role={role}
+                currentEmployeeId={currentEmployeeId}
+              />
+            }
+          />
         </Route>
       </Routes>
     </BrowserRouter>

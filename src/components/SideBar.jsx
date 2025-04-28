@@ -158,6 +158,15 @@ const Sidebar = ({ role, isOpen }) => {
                 Inventory Management
               </Link>
             </div>
+            <div className="flex items-center py-2 hover:bg-gray-100 px-2 rounded cursor-pointer">
+              <UserManagementIcon />
+              <Link
+                to={`/dashboard/${role}/employee-progress`}
+                className="w-full"
+              >
+                Employee Progress
+              </Link>
+            </div>
 
             {/* Add other routes as needed */}
           </div>

@@ -1,26 +1,108 @@
 import { useState } from "react";
-import {
-  Search,
-  Plus,
-  Map,
-  List,
-  MoreVertical,
-  Users,
-  FileCode,
-  Activity,
-  Clock,
-  Package,
-  Calendar,
-  Truck,
-  Box,
-  AlertTriangle,
-} from "lucide-react";
+import { Search, Plus, Map, List, Truck, Package } from "lucide-react";
 
 export default function ShipmentTrackingDashboard() {
   const [activeView, setActiveView] = useState("list");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showAddShipmentForm, setShowAddShipmentForm] = useState(false);
+  const [newShipment, setNewShipment] = useState({
+    status: "",
+    origin: "",
+    destination: "",
+    date: "",
+    distance: "",
+    vehicle: "",
+  });
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedShipment, setSelectedShipment] = useState(null);
+
+  // Sample shipment data with IDs
+  const [shipments, setShipments] = useState([
+    {
+      id: 1,
+      status: "In Transit",
+      origin: "New York",
+      destination: "Los Angeles",
+      date: "2025-04-28",
+      distance: "250 miles",
+      vehicle: "Truck #14",
+    },
+    {
+      id: 2,
+      status: "Delivered",
+      origin: "Chicago",
+      destination: "San Francisco",
+      date: "2025-04-26",
+      distance: "1500 miles",
+      vehicle: "Truck #5",
+    },
+    {
+      id: 3,
+      status: "Pending",
+      origin: "Dallas",
+      destination: "Seattle",
+      date: "2025-05-01",
+      distance: "2000 miles",
+      vehicle: "Truck #8",
+    },
+  ]);
+
+  // Handle search filtering (can search by ID, origin, destination, or status)
+  const filteredShipments = shipments.filter((shipment) => {
+    return (
+      shipment.id.toString().includes(searchQuery) ||
+      shipment.origin.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      shipment.destination.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      shipment.status.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
+
+  // Handle input changes for new shipment form
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewShipment((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  // Handle form submission for adding a shipment
+  const handleAddShipment = (e) => {
+    e.preventDefault();
+    if (Object.values(newShipment).every((field) => field !== "")) {
+      const shipment = {
+        ...newShipment,
+        id: shipments.length + 1, // Generate a new ID
+      };
+      setShipments([...shipments, shipment]);
+      setNewShipment({
+        status: "",
+        origin: "",
+        destination: "",
+        date: "",
+        distance: "",
+        vehicle: "",
+      });
+      setShowAddShipmentForm(false); // Close the form
+    } else {
+      alert("Please fill in all fields!");
+    }
+  };
+
+  // Open modal to view shipment details
+  const handleViewDetails = (shipment) => {
+    setSelectedShipment(shipment);
+    setShowDetailsModal(true);
+  };
+
+  // Close details modal
+  const closeDetailsModal = () => {
+    setShowDetailsModal(false);
+    setSelectedShipment(null);
+  };
 
   return (
-    <div className="bg-white min-h-screen p-4 md:p-6 text-gray-800">
+    <div className="bg-gray-50 min-h-screen p-4 md:p-6 text-gray-800">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">Shipment Tracking</h1>
 
@@ -30,36 +112,22 @@ export default function ShipmentTrackingDashboard() {
             <input
               type="text"
               placeholder="Search by ID, status, departure..."
-              className="bg-gray-100 w-full rounded-lg py-2 pl-10 pr-4 text-gray-800 placeholder-gray-500 border border-gray-200"
+              className="bg-white w-full rounded-lg py-2 pl-10 pr-4 text-gray-800 placeholder-gray-500 border border-gray-200 shadow-sm"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
             <Search className="absolute left-3 top-2.5 text-gray-400 h-5 w-5" />
-          </div>
-
-          <div className="flex gap-2 flex-wrap">
-            <button className="bg-gray-100 rounded-lg px-3 py-2 flex items-center gap-1 text-sm border border-gray-200">
-              Status{" "}
-              <span className="bg-blue-500 text-white text-xs rounded-full ml-1 w-5 h-5 inline-flex items-center justify-center">
-                3
-              </span>
-            </button>
-            <button className="bg-gray-100 rounded-lg px-3 py-2 flex items-center gap-1 text-sm border border-gray-200">
-              Vehicle{" "}
-              <span className="bg-blue-500 text-white text-xs rounded-full ml-1 w-5 h-5 inline-flex items-center justify-center">
-                2
-              </span>
-            </button>
-            <button className="bg-gray-100 rounded-lg px-3 py-2 flex items-center gap-1 text-sm border border-gray-200">
-              Total value <span>$250k</span>
-            </button>
           </div>
         </div>
 
         {/* View Toggle and Add Button */}
         <div className="flex justify-between mb-6">
-          <div className="bg-gray-100 rounded-lg overflow-hidden inline-flex border border-gray-200">
+          <div className="bg-white rounded-lg overflow-hidden inline-flex border border-gray-200 shadow-sm">
             <button
               className={`px-4 py-2 ${
-                activeView === "map" ? "bg-blue-50 text-blue-600" : ""
+                activeView === "map"
+                  ? "bg-blue-50 text-blue-600 font-medium"
+                  : ""
               }`}
               onClick={() => setActiveView("map")}
             >
@@ -67,7 +135,9 @@ export default function ShipmentTrackingDashboard() {
             </button>
             <button
               className={`px-4 py-2 ${
-                activeView === "list" ? "bg-blue-50 text-blue-600" : ""
+                activeView === "list"
+                  ? "bg-blue-50 text-blue-600 font-medium"
+                  : ""
               }`}
               onClick={() => setActiveView("list")}
             >
@@ -75,432 +145,243 @@ export default function ShipmentTrackingDashboard() {
             </button>
           </div>
 
-          <button className="bg-violet-600 hover:bg-violet-700 text-white rounded-lg px-4 py-2 flex items-center">
+          <button
+            className="bg-violet-600 hover:bg-violet-700 text-white rounded-lg px-4 py-2 flex items-center shadow-md"
+            onClick={() => setShowAddShipmentForm(true)} // Show add shipment form
+          >
             <Plus className="h-4 w-4 mr-1" /> Add shipping
           </button>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-violet-100 p-4 rounded-lg border-l-4 border-violet-500">
-            <div className="flex justify-between mb-1">
-              <span className="text-gray-600 text-sm">Total Distance</span>
-              <div className="bg-violet-500 p-1 rounded">
-                <Map className="text-white h-4 w-4" />
+          {[
+            {
+              label: "Total Distance",
+              value: "400 miles",
+              icon: <Map />,
+              iconBg: "bg-violet-500",
+              border: "border-violet-500",
+            },
+            {
+              label: "Total Weight",
+              value: "15,000 lbs",
+              icon: <Package />,
+              iconBg: "bg-blue-500",
+              border: "border-blue-500",
+            },
+            {
+              label: "Total Value",
+              value: "$250k",
+              icon: <span className="font-bold">$</span>,
+              iconBg: "bg-green-500",
+              border: "border-green-500",
+            },
+            {
+              label: "Active Shipments",
+              value: "3",
+              icon: <Truck />,
+              iconBg: "bg-yellow-500",
+              border: "border-yellow-500",
+            },
+          ].map(({ label, value, icon, iconBg, border }, index) => (
+            <div
+              key={index}
+              className={`bg-white p-4 rounded-lg border-l-4 ${border} shadow-sm`}
+            >
+              <div className="flex justify-between mb-1">
+                <span className="text-gray-600 text-sm">{label}</span>
+                <div className={`${iconBg} p-1 rounded`}>{icon}</div>
               </div>
+              <div className="text-2xl font-bold">{value}</div>
             </div>
-            <div className="text-2xl font-bold">
-              400 <span className="text-base font-normal">miles</span>
-            </div>
-            <div className="text-red-600 text-sm mt-2">
-              +50 miles due to road repairs
-            </div>
-          </div>
-
-          <div className="bg-blue-100 p-4 rounded-lg border-l-4 border-blue-500">
-            <div className="flex justify-between mb-1">
-              <span className="text-gray-600 text-sm">Total Weight</span>
-              <div className="bg-blue-500 p-1 rounded">
-                <Package className="text-white h-4 w-4" />
-              </div>
-            </div>
-            <div className="text-2xl font-bold">
-              15,000 <span className="text-base font-normal">lbs</span>
-            </div>
-            <div className="text-green-600 text-sm mt-2">
-              +500 lbs added in Sioux City
-            </div>
-          </div>
-
-          <div className="bg-green-100 p-4 rounded-lg border-l-4 border-green-500">
-            <div className="flex justify-between mb-1">
-              <span className="text-gray-600 text-sm">Total Value</span>
-              <div className="bg-green-500 p-1 rounded">
-                <span className="text-white font-bold">$</span>
-              </div>
-            </div>
-            <div className="text-2xl font-bold">$250k</div>
-            <div className="text-gray-500 text-sm mt-2">No updates</div>
-          </div>
-
-          <div className="bg-yellow-100 p-4 rounded-lg border-l-4 border-yellow-500">
-            <div className="flex justify-between mb-1">
-              <span className="text-gray-600 text-sm">Active Shipments</span>
-              <div className="bg-yellow-500 p-1 rounded">
-                <Truck className="text-white h-4 w-4" />
-              </div>
-            </div>
-            <div className="text-2xl font-bold">3</div>
-            <div className="text-blue-600 text-sm mt-2">
-              1 new shipment today
-            </div>
-          </div>
+          ))}
         </div>
 
-        {/* Map View */}
-        {activeView === "map" && (
-          <div className="mb-6">
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <div className="relative">
-                {/* Map Container */}
-                <div className="h-96 bg-gray-100 rounded-lg overflow-hidden relative">
-                  {/* Simplified Map Visualization */}
-                  <div className="absolute inset-0 bg-gray-50">
-                    {/* Map Roads */}
-                    <div
-                      className="absolute"
-                      style={{
-                        top: "10%",
-                        left: "5%",
-                        right: "5%",
-                        bottom: "10%",
-                      }}
-                    >
-                      {/* Horizontal Main Road */}
-                      <div
-                        className="absolute h-1 bg-gray-300"
-                        style={{ top: "50%", left: "0", right: "0" }}
-                      ></div>
-
-                      {/* Vertical Roads */}
-                      <div
-                        className="absolute w-1 bg-gray-300"
-                        style={{ top: "20%", bottom: "20%", left: "20%" }}
-                      ></div>
-                      <div
-                        className="absolute w-1 bg-gray-300"
-                        style={{ top: "20%", bottom: "20%", left: "50%" }}
-                      ></div>
-                      <div
-                        className="absolute w-1 bg-gray-300"
-                        style={{ top: "20%", bottom: "20%", left: "80%" }}
-                      ></div>
-
-                      {/* Route 1: Blue route with red section (traffic) */}
-                      <div
-                        className="absolute h-2 bg-blue-500 rounded"
-                        style={{ top: "50%", left: "20%", width: "30%" }}
-                      ></div>
-                      <div
-                        className="absolute h-2 bg-red-500 rounded"
-                        style={{ top: "50%", left: "50%", width: "30%" }}
-                      ></div>
-
-                      {/* Route 2: Green route */}
-                      <div
-                        className="absolute w-2 bg-green-500 rounded"
-                        style={{ top: "50%", bottom: "20%", left: "80%" }}
-                      ></div>
-                      <div
-                        className="absolute h-2 bg-green-500 rounded"
-                        style={{ top: "80%", left: "50%", width: "30%" }}
-                      ></div>
-
-                      {/* Cities/Points Markers */}
-                      {/* Lincoln */}
-                      <div
-                        className="absolute rounded-full bg-white border-2 border-blue-500 h-4 w-4"
-                        style={{
-                          top: "50%",
-                          left: "20%",
-                          transform: "translate(-50%, -50%)",
-                        }}
-                      ></div>
-                      <div
-                        className="absolute bg-white px-2 py-1 rounded text-xs font-medium shadow-sm"
-                        style={{
-                          top: "40%",
-                          left: "20%",
-                          transform: "translateX(-50%)",
-                        }}
-                      >
-                        Lincoln
-                      </div>
-
-                      {/* Traffic Point */}
-                      <div
-                        className="absolute rounded-full bg-white border-2 border-red-500 h-4 w-4"
-                        style={{
-                          top: "50%",
-                          left: "60%",
-                          transform: "translate(-50%, -50%)",
-                        }}
-                      ></div>
-                      <div
-                        className="absolute bg-red-500 text-white px-2 py-1 rounded text-xs font-medium shadow-sm"
-                        style={{
-                          top: "40%",
-                          left: "60%",
-                          transform: "translateX(-50%)",
-                        }}
-                      >
-                        Traffic congestion
-                      </div>
-
-                      {/* Sioux Falls */}
-                      <div
-                        className="absolute rounded-full bg-white border-2 border-green-500 h-4 w-4"
-                        style={{
-                          top: "80%",
-                          left: "80%",
-                          transform: "translate(-50%, -50%)",
-                        }}
-                      ></div>
-                      <div
-                        className="absolute bg-white px-2 py-1 rounded text-xs font-medium shadow-sm"
-                        style={{
-                          top: "90%",
-                          left: "80%",
-                          transform: "translateX(-50%)",
-                        }}
-                      >
-                        Sioux Falls
-                      </div>
-
-                      {/* Truck Icon */}
-                      <div
-                        className="absolute"
-                        style={{
-                          top: "48%",
-                          left: "40%",
-                          transform: "translate(-50%, -50%)",
-                        }}
-                      >
-                        <div className="bg-blue-500 p-1 rounded-full">
-                          <Truck className="h-4 w-4 text-white" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Map UI Elements */}
-                  <div className="absolute top-4 right-4 bg-white rounded-lg shadow-md p-2 flex flex-col gap-2">
-                    <button className="p-1 hover:bg-gray-100 rounded">
-                      <Plus className="h-5 w-5 text-gray-600" />
-                    </button>
-                    <div className="h-px bg-gray-200"></div>
-                    <button className="p-1 hover:bg-gray-100 rounded">
-                      <Search className="h-5 w-5 text-gray-600" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Shipment Information Panel */}
-                <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-4 w-full md:w-64 absolute top-4 left-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="bg-blue-100 p-1.5 rounded">
-                      <Truck className="h-4 w-4 text-blue-600" />
-                    </div>
+        {/* Map and List Views */}
+        {activeView === "map" ? (
+          <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+            {/* Map placeholder */}
+            <div className="h-96 bg-gray-100 rounded-lg flex items-center justify-center">
+              <span className="text-gray-400">Map Visualization</span>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold mb-4">Active Shipments</h2>
+            {/* Display filtered shipments */}
+            {filteredShipments.length > 0 ? (
+              filteredShipments.map((shipment) => (
+                <div
+                  key={shipment.id}
+                  className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm"
+                >
+                  <div className="flex justify-between mb-2">
                     <div>
-                      <div className="text-xs text-gray-500">Shipping ID</div>
-                      <div className="font-medium">XPA-456GD</div>
+                      <h3 className="font-semibold text-lg">
+                        {shipment.status}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {shipment.origin} → {shipment.destination}
+                      </p>
+                      <p className="text-sm text-gray-500">{shipment.date}</p>
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      <span className="font-semibold">{shipment.distance}</span>
                     </div>
                   </div>
-
-                  <div className="text-sm mb-3">
-                    <div className="flex justify-between mb-1">
-                      <span className="text-gray-500">From:</span>
-                      <span className="font-medium">Lincoln, NE</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">To:</span>
-                      <span className="font-medium">Sioux Falls, SD</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-red-50 p-2 rounded border border-red-100 text-xs text-red-600 mb-3 flex items-center gap-1">
-                    <AlertTriangle className="h-3 w-3" />
-                    Traffic congestion detected
-                  </div>
-
-                  <div className="text-xs text-gray-500">
-                    ETA: 03/16/2025 01:00 PM
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">
+                      Vehicle: {shipment.vehicle}
+                    </span>
+                    <button
+                      onClick={() => handleViewDetails(shipment)}
+                      className="text-blue-600 text-sm"
+                    >
+                      View Details
+                    </button>
                   </div>
                 </div>
-              </div>
+              ))
+            ) : (
+              <p className="text-gray-500">No shipments found.</p>
+            )}
+          </div>
+        )}
+
+        {/* Add Shipment Form */}
+        {showAddShipmentForm && (
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+              <h2 className="text-xl font-bold mb-4">Add New Shipment</h2>
+              <form onSubmit={handleAddShipment}>
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold mb-2">
+                    Origin
+                  </label>
+                  <input
+                    type="text"
+                    name="origin"
+                    className="w-full px-4 py-2 border rounded-md"
+                    value={newShipment.origin}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold mb-2">
+                    Destination
+                  </label>
+                  <input
+                    type="text"
+                    name="destination"
+                    className="w-full px-4 py-2 border rounded-md"
+                    value={newShipment.destination}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold mb-2">
+                    Status
+                  </label>
+                  <input
+                    type="text"
+                    name="status"
+                    className="w-full px-4 py-2 border rounded-md"
+                    value={newShipment.status}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold mb-2">
+                    Date
+                  </label>
+                  <input
+                    type="date"
+                    name="date"
+                    className="w-full px-4 py-2 border rounded-md"
+                    value={newShipment.date}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold mb-2">
+                    Distance
+                  </label>
+                  <input
+                    type="text"
+                    name="distance"
+                    className="w-full px-4 py-2 border rounded-md"
+                    value={newShipment.distance}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold mb-2">
+                    Vehicle
+                  </label>
+                  <input
+                    type="text"
+                    name="vehicle"
+                    className="w-full px-4 py-2 border rounded-md"
+                    value={newShipment.vehicle}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="flex justify-end gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddShipmentForm(false)}
+                    className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-violet-600 text-white px-4 py-2 rounded-lg"
+                  >
+                    Add Shipment
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
 
-        {/* List View */}
-        {activeView === "list" && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-bold mb-4">Active Shipments</h2>
-
-            {/* Shipment Item 1 */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center">
-                  <div className="bg-blue-100 p-2.5 rounded-lg mr-3">
-                    <Package className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-500">Shipping ID</div>
-                    <div className="font-semibold">NYP-234GA</div>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs mr-2">
-                    In transit
-                  </span>
-                  <button className="text-gray-400 hover:text-gray-600">
-                    <MoreVertical className="h-4 w-4" />
-                  </button>
-                </div>
+        {/* Shipment Details Modal */}
+        {showDetailsModal && selectedShipment && (
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+              <h2 className="text-xl font-bold mb-4">Shipment Details</h2>
+              <div className="space-y-4">
+                <p>
+                  <strong>ID:</strong> {selectedShipment.id}
+                </p>
+                <p>
+                  <strong>Status:</strong> {selectedShipment.status}
+                </p>
+                <p>
+                  <strong>Origin:</strong> {selectedShipment.origin}
+                </p>
+                <p>
+                  <strong>Destination:</strong> {selectedShipment.destination}
+                </p>
+                <p>
+                  <strong>Date:</strong> {selectedShipment.date}
+                </p>
+                <p>
+                  <strong>Distance:</strong> {selectedShipment.distance}
+                </p>
+                <p>
+                  <strong>Vehicle:</strong> {selectedShipment.vehicle}
+                </p>
               </div>
-
-              <div className="relative mb-4">
-                <div className="h-2 bg-gray-200 rounded-full w-full"></div>
-                <div
-                  className="h-2 bg-blue-500 rounded-full absolute top-0 left-0"
-                  style={{ width: "60%" }}
-                ></div>
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
-                  <span>New York, NY</span>
-                  <span>Atlanta, GA</span>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap justify-between text-sm">
-                <div className="mb-2">
-                  <div className="text-gray-500">Departure</div>
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-1 text-gray-400" />
-                    03/12/2025 10:00 AM
-                  </div>
-                </div>
-                <div className="mb-2">
-                  <div className="text-gray-500">Estimated arrival</div>
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-1 text-gray-400" />
-                    03/13/2025 02:00 PM
-                  </div>
-                </div>
-                <div>
-                  <div className="text-gray-500">Status</div>
-                  <div className="flex items-center text-yellow-600">
-                    <AlertTriangle className="h-4 w-4 mr-1" />2 hours late to
-                    pickup
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Shipment Item 2 */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center">
-                  <div className="bg-purple-100 p-2.5 rounded-lg mr-3">
-                    <Truck className="h-5 w-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-500">Shipping ID</div>
-                    <div className="font-semibold">XPA-456GD</div>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs mr-2">
-                    Stationary
-                  </span>
-                  <button className="text-gray-400 hover:text-gray-600">
-                    <MoreVertical className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="relative mb-4">
-                <div className="h-2 bg-gray-200 rounded-full w-full"></div>
-                <div
-                  className="h-2 bg-purple-500 rounded-full absolute top-0 left-0"
-                  style={{ width: "20%" }}
-                ></div>
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
-                  <span>Lincoln, NE</span>
-                  <span>Sioux Falls, SD</span>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap justify-between text-sm">
-                <div className="mb-2">
-                  <div className="text-gray-500">Departure</div>
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-1 text-gray-400" />
-                    03/15/2025 08:00 AM
-                  </div>
-                </div>
-                <div className="mb-2">
-                  <div className="text-gray-500">Estimated arrival</div>
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-1 text-gray-400" />
-                    03/16/2025 01:00 PM
-                  </div>
-                </div>
-                <div>
-                  <div className="text-gray-500">Status</div>
-                  <div className="flex items-center text-red-600">
-                    <AlertTriangle className="h-4 w-4 mr-1" />
-                    Traffic congestion
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Shipment Item 3 */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center">
-                  <div className="bg-green-100 p-2.5 rounded-lg mr-3">
-                    <Box className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-500">Shipping ID</div>
-                    <div className="font-semibold">DSY-901ER</div>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <span className="bg-violet-100 text-violet-600 px-2 py-1 rounded text-xs mr-2">
-                    Preparing
-                  </span>
-                  <button className="text-gray-400 hover:text-gray-600">
-                    <MoreVertical className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="relative mb-4">
-                <div className="h-2 bg-gray-200 rounded-full w-full"></div>
-                <div
-                  className="h-2 bg-green-500 rounded-full absolute top-0 left-0"
-                  style={{ width: "5%" }}
-                ></div>
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
-                  <span>Port of NY and NJ</span>
-                  <span>Port of Jacksonville, FL</span>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap justify-between text-sm">
-                <div className="mb-2">
-                  <div className="text-gray-500">Scheduled departure</div>
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-1 text-gray-400" />
-                    03/17/2025 11:00 AM
-                  </div>
-                </div>
-                <div className="mb-2">
-                  <div className="text-gray-500">Estimated arrival</div>
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-1 text-gray-400" />
-                    03/20/2025 04:00 PM
-                  </div>
-                </div>
-                <div>
-                  <div className="text-gray-500">Status</div>
-                  <div className="flex items-center text-green-600">
-                    <Box className="h-4 w-4 mr-1" />
-                    On time for departure
-                  </div>
-                </div>
+              <div className="flex justify-end gap-4 mt-4">
+                <button
+                  onClick={closeDetailsModal}
+                  className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg"
+                >
+                  Close
+                </button>
               </div>
             </div>
           </div>

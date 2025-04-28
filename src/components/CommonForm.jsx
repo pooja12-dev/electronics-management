@@ -1,18 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { getFirestore, doc, getDoc } from "firebase/firestore"; //to get user role
 import { auth } from "../firebase"; // Ensure this points to your Firebase config file
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { saveUserToFirestore } from "./userService"; // Import Firestore service
+import { saveUserToFirestore } from "../userService"; // Import Firestore service
+import { useRole } from "../RoleContext"; // Import the context hook
 const CommonForm = ({ onRoleSelect }) => {
   const [selectedRole, setSelectedRole] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const { updateRole } = useRole(); // Get the function to update the role
   const [name, setName] = useState(""); // New state for name
+  const [userRole, setUserRole] = useState(null); // State for storing the user role
+  const db = getFirestore();
 
   const navigate = useNavigate();
 
@@ -24,12 +29,16 @@ const CommonForm = ({ onRoleSelect }) => {
     { id: "vendor", label: "Vendor", icon: "🏢" },
     { id: "employee", label: "Employee", icon: "🏢" },
   ];
-
+  useEffect(() => {
+    // This effect could be used to handle other logic based on the user's role
+    if (userRole) {
+      console.log("Role updated:", userRole);
+      // You can fetch data based on the role or trigger other actions
+    }
+  }, [userRole]); // Trigger effect when userRole changes
   const handleRoleSelection = (role) => {
     console.log("Role selected:", role);
     setSelectedRole(role);
-    onRoleSelect(role);
-    localStorage.setItem("role", role); // <-- Save role to localStorage
   };
 
   const handleLogin = async (e) => {
@@ -39,28 +48,38 @@ const CommonForm = ({ onRoleSelect }) => {
       return;
     }
 
-    setIsLoading(true);
-
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
         password
       );
-      console.log("User logged in:", userCredential.user);
-      // After login, check if user exists in Firestore and add data if not
-      await saveUserToFirestore(userCredential.user.uid, name, selectedRole);
-      navigate(`/dashboard/${selectedRole}`);
+      const user = userCredential.user;
+
+      // Fetch user data (role) from Firestore
+      const userRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(userRef);
+
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        const userRole = userData.role; // Fetch the current role from Firestore
+        console.log("User logged in with role:", userRole);
+
+        // Navigate to the dashboard based on the role
+        navigate(`/dashboard/${userRole}`);
+      } else {
+        console.error("No such user found in Firestore!");
+      }
     } catch (error) {
       console.error("Login failed:", error.message);
       alert("Login failed: " + error.message);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    // Ensure a role is selected before continuing
     if (!selectedRole) {
       alert("Please select a role before registering.");
       return;
@@ -69,18 +88,36 @@ const CommonForm = ({ onRoleSelect }) => {
     setIsLoading(true);
 
     try {
+      // Register the user
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
-      console.log("User registered:", userCredential.user);
-      // After login, check if user exists in Firestore and add data if not
-      await saveUserToFirestore(userCredential.user.uid, name, selectedRole);
-      alert("Registration successful! Please log in.");
-      setIsLogin(true); // Switch to login view after successful registration
+
+      // Ensure userCredential is valid before accessing user data
+      if (userCredential && userCredential.user) {
+        console.log("User registered:", userCredential.user);
+
+        // After registration, save user data to Firestore
+        const saveResult = await saveUserToFirestore(
+          userCredential.user.uid,
+          email,
+          selectedRole
+        );
+        if (saveResult) {
+          alert("Registration successful! Please log in.");
+          setIsLogin(true); // Switch to login view after successful registration
+        } else {
+          alert("Error saving user data to Firestore.");
+        }
+      } else {
+        throw new Error("Registration failed. User credential is invalid.");
+      }
     } catch (error) {
       console.error("Registration failed:", error.message);
+
+      // Handle specific error cases
       if (error.code === "auth/email-already-in-use") {
         alert("The email is already in use. Please use a different email.");
       } else if (error.code === "auth/weak-password") {

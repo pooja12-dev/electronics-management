@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useRole } from "../RoleContext"; // Import the useRole hook
 
 // Icon components
 const SystemOverviewIcon = () => (
@@ -9,7 +10,14 @@ const UserManagementIcon = () => (
   <span className="text-purple-500 text-xl mr-2">👥</span>
 );
 
-const Sidebar = ({ role, isOpen }) => {
+const Sidebar = ({ isOpen }) => {
+  const { role, loading } = useRole();
+  console.log("role from sb", role);
+
+  // If the role is still null (data is being fetched), show a loading state
+  if (role === null) {
+    return <div>Loading...</div>; // You can replace this with a spinner or something more appropriate
+  }
   const renderMenu = () => {
     switch (role) {
       case "administrator":
@@ -306,7 +314,7 @@ const Sidebar = ({ role, isOpen }) => {
         isOpen ? "block" : "hidden"
       } md:block w-full md:w-64 bg-white border-r shadow-sm p-4 fixed md:relative z-10 h-full overflow-y-auto`}
     >
-      {renderMenu()}
+      {role && renderMenu(role)}
     </nav>
   );
 };

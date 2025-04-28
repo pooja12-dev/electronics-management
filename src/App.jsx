@@ -17,6 +17,7 @@ import Loader from "./components/Loader"; // ⬅️ import your loader file
 import TeamDataPage from "./pages/AdminPages/TeamData";
 import EmployeeProgressLayout from "./pages/AdminPages/EmployeeProgressLayout";
 import PricingPage from "./pages/AdminPages/PricingPage";
+import { RoleProvider } from "./RoleContext";
 function App() {
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true); // ⬅️ new loading state
@@ -24,10 +25,6 @@ function App() {
   const currentEmployeeId = 1;
 
   useEffect(() => {
-    const savedRole = localStorage.getItem("role");
-    if (savedRole) {
-      setRole(savedRole);
-    }
     // Simulate loading time (optional)
     const timer = setTimeout(() => {
       setLoading(false); // loading complete
@@ -41,36 +38,44 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<CommonForm onRoleSelect={setRole} />} />
-        <Route path="/dashboard/:role/*" element={<Layout role={role} />}>
-          <Route path="system-overview" element={<TotalUserAdmin />} />
-          <Route path="production-stats" element={<TotalUserAdmin />} />
-          <Route path="invoices" element={<Invoices />} />
-          <Route path="shipments" element={<ShipmentTrackingDashboard />} />
-          <Route path="order-view" element={<OrderManagement />} />
-          {/* <Route path="stock-needs" element={<StockLayout role={role} />} /> */}
-          <Route path="teams-data" element={<TeamDataPage />} />
-          <Route path="inventory-management" element={<InventoryDashboard />} />
-          <Route path="assign-tasks" element={<TaskAssignment />} />
-          <Route path="logs" element={<Logs />} />
-          <Route path="security-settings" element={<SecuritySettings />} />
-          <Route path="user-management" element={<UserManagement />} />
+    <RoleProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
           <Route
-            path="employee-progress"
-            element={
-              <EmployeeProgressLayout
-                role={role}
-                currentEmployeeId={currentEmployeeId}
-              />
-            }
+            path="/login"
+            element={<CommonForm onRoleSelect={setRole} />}
           />
-          <Route path="pricing" element={<PricingPage role={role} />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+          <Route path="/dashboard/:role/*" element={<Layout role={role} />}>
+            <Route path="system-overview" element={<TotalUserAdmin />} />
+            <Route path="production-stats" element={<TotalUserAdmin />} />
+            <Route path="invoices" element={<Invoices />} />
+            <Route path="shipments" element={<ShipmentTrackingDashboard />} />
+            <Route path="order-view" element={<OrderManagement />} />
+            {/* <Route path="stock-needs" element={<StockLayout role={role} />} /> */}
+            <Route path="teams-data" element={<TeamDataPage />} />
+            <Route
+              path="inventory-management"
+              element={<InventoryDashboard />}
+            />
+            <Route path="assign-tasks" element={<TaskAssignment />} />
+            <Route path="logs" element={<Logs />} />
+            <Route path="security-settings" element={<SecuritySettings />} />
+            <Route path="user-management" element={<UserManagement />} />
+            <Route
+              path="employee-progress"
+              element={
+                <EmployeeProgressLayout
+                  role={role}
+                  currentEmployeeId={currentEmployeeId}
+                />
+              }
+            />
+            <Route path="pricing" element={<PricingPage role={role} />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </RoleProvider>
   );
 }
 

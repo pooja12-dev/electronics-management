@@ -1,9 +1,16 @@
 import React from "react";
 import Sidebar from "./SideBar";
 import Header from "./Header";
-import { Outlet } from "react-router-dom"; // 👈 import Outlet
+import { Outlet } from "react-router-dom";
+import { useRole } from "../RoleContext";
 
-const Layout = ({ role }) => {
+const Layout = () => {
+  const { role, loading } = useRole(); // Get the role and loading state from context
+
+  if (loading) {
+    return <div>Loading...</div>; // You can replace this with a spinner or a loading message
+  }
+
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
@@ -15,7 +22,7 @@ const Layout = ({ role }) => {
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto p-4">
-          <Outlet /> {/* 👈 This is where nested routes will render */}
+          <Outlet />
         </main>
       </div>
     </div>

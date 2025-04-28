@@ -36,6 +36,30 @@ const UserManagement = () => {
           role: "Manager",
           permission: "Revoked",
         },
+        {
+          id: 3,
+          name: "Charlie",
+
+          email: "char@example.com",
+          role: "Developer",
+          permission: "Revoked",
+        },
+        {
+          id: 4,
+          name: "Harry",
+
+          email: "harry@example.com",
+          role: "Employee",
+          permission: "Granted",
+        },
+        {
+          id: 5,
+          name: "Sara Kim",
+
+          email: "sara@example.com",
+          role: "Manager",
+          permission: "granted",
+        },
       ];
       setUsers(mockUsers);
       setPaginatedUsers(mockUsers.slice(0, 5)); // Paginate users

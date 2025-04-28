@@ -115,6 +115,18 @@ const Sidebar = ({ role, isOpen }) => {
                 Employee Progress
               </Link>
             </div>
+            {/* <div className="flex items-center py-2 hover:bg-gray-100 px-2 rounded cursor-pointer">
+              <UserManagementIcon />
+              <Link to={`/dashboard/${role}/item-status`} className="w-full">
+                Update Item Status
+              </Link>
+            </div> */}
+            <div className="flex items-center py-2 hover:bg-gray-100 px-2 rounded cursor-pointer">
+              <UserManagementIcon />
+              <Link to={`/dashboard/${role}/pricing`} className="w-full">
+                Pricing
+              </Link>
+            </div>
             {/* Add other routes as needed */}
           </div>
         );
@@ -203,21 +215,22 @@ const Sidebar = ({ role, isOpen }) => {
       case "vendor":
         return (
           <div className="space-y-4">
-            <div className="font-semibold text-xl mb-6 mt-2">
-              Supervisor Menu
-            </div>
+            <div className="font-semibold text-xl mb-6 mt-2">Vendor Menu</div>
             <div className="flex items-center py-2 hover:bg-gray-100 px-2 rounded cursor-pointer">
               <UserManagementIcon />
-              <Link to={`/dashboard/${role}/stock-needs`} className="w-full">
-                Stock Needs
+              <Link
+                to={`/dashboard/${role}/inventory-management`}
+                className="w-full"
+              >
+                Inventory Management
               </Link>
             </div>
-            <div className="flex items-center py-2 hover:bg-gray-100 px-2 rounded cursor-pointer">
+            {/* <div className="flex items-center py-2 hover:bg-gray-100 px-2 rounded cursor-pointer">
               <UserManagementIcon />
               <Link to={`/dashboard/${role}/item-status`} className="w-full">
                 Update Item Status
               </Link>
-            </div>
+            </div> */}
             <div className="flex items-center py-2 hover:bg-gray-100 px-2 rounded cursor-pointer">
               <UserManagementIcon />
               <Link to={`/dashboard/${role}/pricing`} className="w-full">

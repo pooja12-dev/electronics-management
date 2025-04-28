@@ -1,8 +1,8 @@
 // data.js
 export const employeeData = [
-  { id: 1, name: "John Doe", role: "employee", progress: 80 },
-  { id: 2, name: "Jane Smith", role: "employee", progress: 65 },
-  { id: 3, name: "Mike Johnson", role: "manager", progress: 90 },
-  { id: 4, name: "Lisa Ray", role: "employee", progress: 75 },
-  { id: 5, name: "Sara Kim", role: "manager", progress: 85 },
+  { id: 1, name: "Alice", role: "Admin", progress: 80 },
+  { id: 2, name: "Bob", role: "Manager", progress: 65 },
+  { id: 3, name: "Charlie", role: "Developer", progress: 90 },
+  { id: 4, name: "Harry", role: "Employee", progress: 75 },
+  { id: 5, name: "Sara Kim", role: "Manager", progress: 85 },
 ];

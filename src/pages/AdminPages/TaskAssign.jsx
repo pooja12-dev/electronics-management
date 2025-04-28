@@ -10,6 +10,8 @@ const TaskAssign = ({ onUserSelect, selectedUser }) => {
         { id: 1, name: "Alice", role: "Admin" },
         { id: 2, name: "Bob", role: "Manager" },
         { id: 3, name: "Charlie", role: "Developer" },
+        { id: 4, name: "Harry", role: "Employee" },
+        { id: 5, name: "Sara Kim", role: "manager" },
       ];
 
       console.log("Fetched users:", mockUsers);

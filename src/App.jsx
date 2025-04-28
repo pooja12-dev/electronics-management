@@ -16,6 +16,7 @@ import StockLayout from "./components/StockLayout";
 import Loader from "./components/Loader"; // ⬅️ import your loader file
 import TeamDataPage from "./pages/AdminPages/TeamData";
 import EmployeeProgressLayout from "./pages/AdminPages/EmployeeProgressLayout";
+import PricingPage from "./pages/AdminPages/PricingPage";
 function App() {
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true); // ⬅️ new loading state
@@ -66,6 +67,7 @@ function App() {
               />
             }
           />
+          <Route path="pricing" element={<PricingPage role={role} />} />
         </Route>
       </Routes>
     </BrowserRouter>

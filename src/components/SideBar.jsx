@@ -93,12 +93,7 @@ const Sidebar = ({ role, isOpen }) => {
                 Production Stats
               </Link>
             </div>
-            <div className="flex items-center py-2 hover:bg-gray-100 px-2 rounded cursor-pointer">
-              <UserManagementIcon />
-              <Link to={`/dashboard/${role}/shipment`} className="w-full">
-                Shipment
-              </Link>
-            </div>
+
             <div className="flex items-center py-2 hover:bg-gray-100 px-2 rounded cursor-pointer">
               <UserManagementIcon />
               <Link to={`/dashboard/${role}/order-view`} className="w-full">
@@ -107,8 +102,17 @@ const Sidebar = ({ role, isOpen }) => {
             </div>
             <div className="flex items-center py-2 hover:bg-gray-100 px-2 rounded cursor-pointer">
               <UserManagementIcon />
-              <Link to={`/dashboard/${role}/st0ck-needs`} className="w-full">
+              <Link to={`/dashboard/${role}/stock-needs`} className="w-full">
                 Stock Needs
+              </Link>
+            </div>
+            <div className="flex items-center py-2 hover:bg-gray-100 px-2 rounded cursor-pointer">
+              <UserManagementIcon />
+              <Link
+                to={`/dashboard/${role}/employee-progress`}
+                className="w-full"
+              >
+                Employee Progress
               </Link>
             </div>
             {/* Add other routes as needed */}
@@ -209,6 +213,52 @@ const Sidebar = ({ role, isOpen }) => {
               <UserManagementIcon />
               <Link to={`/dashboard/${role}/pricing`} className="w-full">
                 Pricing
+              </Link>
+            </div>
+          </div>
+        );
+      case "deliveryOfficer":
+        return (
+          <div className="space-y-4">
+            <div className="font-semibold text-xl mb-6 mt-2">DO Menu</div>
+            <div className="flex items-center py-2 hover:bg-gray-100 px-2 rounded cursor-pointer">
+              <UserManagementIcon />
+              <Link to={`/dashboard/${role}/shipments`} className="w-full">
+                Shipment
+              </Link>
+            </div>
+            <div className="flex items-center py-2 hover:bg-gray-100 px-2 rounded cursor-pointer">
+              <UserManagementIcon />
+              <Link to={`/dashboard/${role}/order-view`} className="w-full">
+                Order View
+              </Link>
+            </div>
+            <div className="flex items-center py-2 hover:bg-gray-100 px-2 rounded cursor-pointer">
+              <UserManagementIcon />
+              <Link to={`/dashboard/${role}/invoices`} className="w-full">
+                Invoices
+              </Link>
+            </div>
+          </div>
+        );
+      case "employee":
+        return (
+          <div className="space-y-4">
+            <div className="font-semibold text-xl mb-6 mt-2">Employee Menu</div>
+            <div className="flex items-center py-2 hover:bg-gray-100 px-2 rounded cursor-pointer">
+              <UserManagementIcon />
+              <Link
+                to={`/dashboard/${role}/employee-progress`}
+                className="w-full"
+              >
+                Employee Progress
+              </Link>
+            </div>
+
+            <div className="flex items-center py-2 hover:bg-gray-100 px-2 rounded cursor-pointer">
+              <UserManagementIcon />
+              <Link to={`/dashboard/${role}/assign-tasks`} className="w-full">
+                Task Assignment
               </Link>
             </div>
           </div>

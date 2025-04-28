@@ -23,7 +23,7 @@ const Loader = ({ onLoadComplete }) => {
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-screen bg-black text-white">
-      <div className="text-4xl font-bold mb-8">cuberto</div>
+      <div className="text-4xl font-bold mb-8">ElectroPanel</div>
       <div className="w-64 h-2 bg-gray-800 rounded-full overflow-hidden">
         <div
           className="h-full bg-white transition-all duration-300 ease-out"

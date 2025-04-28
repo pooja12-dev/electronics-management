@@ -14,6 +14,7 @@ import InventoryDashboard from "./pages/AdminPages/InventoryManage";
 import Invoices from "./pages/AdminPages/invoices";
 import StockLayout from "./components/StockLayout";
 import Loader from "./components/Loader"; // ⬅️ import your loader file
+import TeamDataPage from "./pages/AdminPages/TeamData";
 
 function App() {
   const [role, setRole] = useState(null);
@@ -48,7 +49,7 @@ function App() {
           <Route path="shipments" element={<ShipmentTrackingDashboard />} />
           <Route path="order-view" element={<OrderManagement />} />
           <Route path="stock-needs" element={<StockLayout role={role} />} />
-          <Route path="teams-data" element={<TotalUserAdmin />} />
+          <Route path="teams-data" element={<TeamDataPage />} />
           <Route path="inventory-management" element={<InventoryDashboard />} />
           <Route path="assign-tasks" element={<TaskAssignment />} />
           <Route path="logs" element={<Logs />} />

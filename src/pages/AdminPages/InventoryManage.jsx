@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import { InventoryTable } from "../../components/InventoryTable";
 import { ProductForm } from "../../components/ProductForm";
+import { useNavigate } from "react-router-dom"; // Use useNavigate here
+import LowStockAlerts from "../../components/LowStockAlert";
 
 export default function InventoryDashboard() {
   const [products, setProducts] = useState([
@@ -16,65 +18,13 @@ export default function InventoryDashboard() {
       status: "Out of stock",
       image: "/api/placeholder/50/50",
     },
-    {
-      id: "SE678403",
-      name: "sony mobile",
-      onOrder: 20,
-      allocated: 34,
-      returns: 1,
-      inStore: 78,
-      expected: 0,
-      status: "In stock",
-      image: "/api/placeholder/50/50",
-    },
-    {
-      id: "SE098603",
-      name: "boat speaker",
-      onOrder: 0,
-      allocated: 65,
-      returns: 0,
-      inStore: 5,
-      expected: 38,
-      status: "Low stock",
-      image: "/api/placeholder/50/50",
-    },
-    {
-      id: "SE364567",
-      name: "radio",
-      onOrder: 75,
-      allocated: 75,
-      returns: 8,
-      inStore: 0,
-      expected: 0,
-      status: "Out of stock",
-      image: "/api/placeholder/50/50",
-    },
-    {
-      id: "SEFF3405",
-      name: "Dell laptop",
-      onOrder: 65,
-      allocated: 250,
-      returns: 0,
-      inStore: 100,
-      expected: 0,
-      status: "In stock",
-      image: "/api/placeholder/50/50",
-    },
-    {
-      id: "SE4835D4",
-      name: "Dell pc",
-      onOrder: 65,
-      allocated: 200,
-      returns: 0,
-      inStore: 150,
-      expected: 0,
-      status: "In stock",
-      image: "/api/placeholder/50/50",
-    },
+    // other products...
   ]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
+
+  const navigate = useNavigate(); // useNavigate hook
 
   const revenueData = {
     today: { revenue: "N578K", orders: 52, ordersFulfilled: 10 },
@@ -95,12 +45,17 @@ export default function InventoryDashboard() {
       product.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const lowStockOrOutOfStock = products.filter(
+    (product) =>
+      product.status === "Out of stock" || product.status === "Low stock"
+  );
+
   return (
     <div className="bg-gray-50 min-h-screen p-4 md:p-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800 mb-4 md:mb-0">
-            Finesse Republic
+            Inventory Management
           </h1>
           <div className="w-full md:w-auto">
             <div className="relative">
@@ -165,6 +120,8 @@ export default function InventoryDashboard() {
           onClose={() => setIsFormOpen(false)}
           onAddProduct={handleFormSubmit}
         />
+
+        <LowStockAlerts products={lowStockOrOutOfStock} />
       </div>
     </div>
   );

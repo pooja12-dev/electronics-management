@@ -28,8 +28,9 @@ export default function StockLayout({ role }) {
     try {
       const savedProducts = localStorage.getItem("inventoryProducts");
       if (savedProducts) {
-        setProducts(JSON.parse(savedProducts));
-        console.log("Loaded products:", JSON.parse(savedProducts));
+        const parsedProducts = JSON.parse(savedProducts);
+        setProducts(parsedProducts);
+        console.log("Loaded products:", parsedProducts); // Log the loaded products
       } else {
         console.log("No products found in localStorage");
       }
@@ -163,7 +164,7 @@ export default function StockLayout({ role }) {
             onDelete={deleteProduct}
             onAdjustQuantity={adjustQuantity}
           />
-          <LowStockAlerts products={products} />
+          {/* <LowStockAlerts products={products} /> */}
         </main>
       )}
     </div>

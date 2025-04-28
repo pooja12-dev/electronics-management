@@ -24,61 +24,24 @@ export default function TeamDataPage() {
       status: "Inactive",
     },
   ]);
-
   const [newMember, setNewMember] = useState({
     name: "",
     role: "",
     email: "",
     status: "Active",
   });
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [errors, setErrors] = useState({
-    name: "",
-    role: "",
-    email: "",
-  });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewMember((prev) => ({ ...prev, [name]: value }));
-
-    // Clear the error when user starts typing
-    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
-  };
-
-  const validateFields = () => {
-    let valid = true;
-    let errorMessages = { name: "", role: "", email: "" };
-
-    if (!newMember.name) {
-      errorMessages.name = "Name is required.";
-      valid = false;
-    }
-    if (!newMember.role) {
-      errorMessages.role = "Role is required.";
-      valid = false;
-    }
-    if (!newMember.email) {
-      errorMessages.email = "Email is required.";
-      valid = false;
-    } else if (!/\S+@\S+\.\S+/.test(newMember.email)) {
-      errorMessages.email = "Invalid email format.";
-      valid = false;
-    }
-
-    setErrors(errorMessages); // Update error messages
-    return valid;
+    setNewMember((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const addOrEditMember = () => {
-    // Validate fields before submitting
-    if (!validateFields()) {
-      return; // Stop form submission if validation fails
-    }
-
-    // Proceed with adding or editing the member
     if (editingId === null) {
       setTeam([...team, { ...newMember, id: Date.now() }]);
     } else {
@@ -87,7 +50,6 @@ export default function TeamDataPage() {
       );
       setTeam(updatedTeam);
     }
-
     setNewMember({
       name: "",
       role: "",
@@ -125,7 +87,7 @@ export default function TeamDataPage() {
       </header>
 
       <div className="overflow-x-auto bg-white rounded-lg shadow">
-        <table className="min-w-full table-auto text-sm sm:text-base">
+        <table className="min-w-full table-auto">
           <thead>
             <tr className="bg-gray-200">
               <th className="py-2 px-4 text-left">Name</th>
@@ -189,10 +151,8 @@ export default function TeamDataPage() {
                 value={newMember.name}
                 onChange={handleInputChange}
                 className="w-full p-2 border rounded"
+                required
               />
-              {errors.name && (
-                <div className="text-red-500 text-sm">{errors.name}</div>
-              )}
             </div>
             <div className="mb-4">
               <label className="block mb-1" htmlFor="role">
@@ -205,10 +165,8 @@ export default function TeamDataPage() {
                 value={newMember.role}
                 onChange={handleInputChange}
                 className="w-full p-2 border rounded"
+                required
               />
-              {errors.role && (
-                <div className="text-red-500 text-sm">{errors.role}</div>
-              )}
             </div>
             <div className="mb-4">
               <label className="block mb-1" htmlFor="email">
@@ -221,10 +179,8 @@ export default function TeamDataPage() {
                 value={newMember.email}
                 onChange={handleInputChange}
                 className="w-full p-2 border rounded"
+                required
               />
-              {errors.email && (
-                <div className="text-red-500 text-sm">{errors.email}</div>
-              )}
             </div>
             <div className="mb-4">
               <label className="block mb-1" htmlFor="status">

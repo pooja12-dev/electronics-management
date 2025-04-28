@@ -1,5 +1,12 @@
 export default function LowStockAlerts({ products }) {
-  const lowStockProducts = products.filter((p) => p.quantity <= p.reorderPoint);
+  const lowStockProducts = products.filter(
+    (product) =>
+      product.status === "Out of stock" ||
+      product.status === "Low stock" ||
+      product.quantity <= product.reorderPoint
+  );
+
+  console.log("Filtered low stock products:", lowStockProducts);
 
   return (
     <div className="mt-8">

@@ -16,6 +16,7 @@ const LoginPage = ({ selectedRole }) => {
         timestamp: new Date().toISOString(),
       };
       sessionStorage.setItem("userSession", JSON.stringify(sessionData));
+      console.log(selectedRole, "selectedrole");
       navigate(`/dashboard/${selectedRole}`);
     } else {
       alert("Please enter valid credentials.");

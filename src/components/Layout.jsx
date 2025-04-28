@@ -1,11 +1,23 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
+import Sidebar from "./SideBar";
+import Header from "./Header";
+import { Outlet } from "react-router-dom"; // 👈 import Outlet
 
 const Layout = ({ role }) => {
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Welcome to {role}'s Dashboard</h1>
-      <Outlet />
+    <div className="flex h-screen">
+      {/* Sidebar */}
+      <Sidebar role={role} />
+
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <Header role={role} />
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto p-4">
+          <Outlet /> {/* 👈 This is where nested routes will render */}
+        </main>
+      </div>
     </div>
   );
 };

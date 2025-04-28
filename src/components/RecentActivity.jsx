@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 
 const RecentActivity = () => {
   const darkMode = localStorage.getItem("darkMode") === "true";
+  const [showAllActivities, setShowAllActivities] = useState(false);
 
-  const activities = [
+  // Initial activities shown by default
+  const initialActivities = [
     {
       id: 1,
       icon: "S",
@@ -27,6 +29,50 @@ const RecentActivity = () => {
     },
   ];
 
+  // Extended list of activities that will show when "View all" is clicked
+  const allActivities = [
+    ...initialActivities,
+    {
+      id: 4,
+      icon: "D",
+      title: "Database Backup",
+      description: "Automated backup completed",
+      time: "2 days ago",
+    },
+    {
+      id: 5,
+      icon: "U",
+      title: "UI Update",
+      description: "New dashboard layout deployed",
+      time: "3 days ago",
+    },
+    {
+      id: 6,
+      icon: "R",
+      title: "Report Generated",
+      description: "Monthly analytics report ready for review",
+      time: "1 week ago",
+    },
+    {
+      id: 7,
+      icon: "M",
+      title: "Maintenance",
+      description: "Scheduled system maintenance completed",
+      time: "1 week ago",
+    },
+  ];
+
+  // Handle view all click
+  const handleViewAllClick = (e) => {
+    e.preventDefault();
+    setShowAllActivities(!showAllActivities);
+  };
+
+  // Choose which activities to display based on state
+  const displayActivities = showAllActivities
+    ? allActivities
+    : initialActivities;
+
   return (
     <div
       className={`p-6 rounded-lg ${
@@ -43,11 +89,11 @@ const RecentActivity = () => {
         </h3>
       </div>
       <div>
-        {activities.map((activity) => (
+        {displayActivities.map((activity) => (
           <div
             key={activity.id}
             className={`flex items-start py-4 ${
-              activity.id !== activities.length
+              activity.id !== displayActivities.length
                 ? `border-b ${darkMode ? "border-gray-700" : "border-gray-200"}`
                 : ""
             }`}
@@ -91,13 +137,14 @@ const RecentActivity = () => {
         <div className="mt-4 text-center">
           <a
             href="#"
+            onClick={handleViewAllClick}
             className={`text-sm ${
               darkMode
                 ? "text-purple-400 hover:text-purple-300"
                 : "text-purple-600 hover:text-purple-800"
             }`}
           >
-            View all activity →
+            {showAllActivities ? "Show less ↑" : "View all activity →"}
           </a>
         </div>
       </div>

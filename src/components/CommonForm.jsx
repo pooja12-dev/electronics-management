@@ -42,13 +42,12 @@ const CommonForm = ({ onRoleSelect }) => {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
-      <div className="hidden md:flex md:w-1/2 bg-blue-600 justify-center items-center">
-        <div className="max-w-md px-8">
-          <h1 className="text-4xl font-bold text-white mb-6">Welcome</h1>
-          <p className="text-blue-100 mb-8">
-            Role-specific management platform.
-          </p>
-        </div>
+      <div className="hidden md:flex md:w-1/2 bg-white justify-center items-center relative">
+        <img
+          src="/download.jpg" // Replace with your image URL or path
+          alt="Welcome Image"
+          className="object-cover w-full h-full rounded-l-xl" // Ensures responsiveness and coverage
+        />
       </div>
 
       <div className="w-full md:w-1/2 flex items-center justify-center p-4 sm:p-6 md:p-8 lg:p-12">
@@ -102,10 +101,7 @@ const CommonForm = ({ onRoleSelect }) => {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => {
-                  console.log("Email updated:", e.target.value);
-                  setEmail(e.target.value);
-                }}
+                onChange={(e) => setEmail(e.target.value)}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 placeholder="Enter your email"
                 required
@@ -122,10 +118,7 @@ const CommonForm = ({ onRoleSelect }) => {
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => {
-                  console.log("Password updated:", e.target.value);
-                  setPassword(e.target.value);
-                }}
+                onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 placeholder="Enter your password"
                 required

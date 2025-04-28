@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth } from "./firebase"; // Ensure this points to your Firebase config file
+import { auth } from "../firebase"; // Ensure this points to your Firebase config file
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -10,7 +10,8 @@ const CommonForm = ({ onRoleSelect }) => {
   const [selectedRole, setSelectedRole] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  onst[(isLogin, setIsLogin)] = useState(true);
+  const [isLogin, setIsLogin] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -37,6 +38,8 @@ const CommonForm = ({ onRoleSelect }) => {
       return;
     }
 
+    setIsLoading(true);
+
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
@@ -48,9 +51,10 @@ const CommonForm = ({ onRoleSelect }) => {
     } catch (error) {
       console.error("Login failed:", error.message);
       alert("Login failed: " + error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
-  //login function with firebase
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -58,6 +62,8 @@ const CommonForm = ({ onRoleSelect }) => {
       alert("Please select a role before registering.");
       return;
     }
+
+    setIsLoading(true);
 
     try {
       const userCredential = await createUserWithEmailAndPassword(
@@ -67,12 +73,20 @@ const CommonForm = ({ onRoleSelect }) => {
       );
       console.log("User registered:", userCredential.user);
       alert("Registration successful! Please log in.");
+      setIsLogin(true); // Switch to login view after successful registration
     } catch (error) {
       console.error("Registration failed:", error.message);
-      alert("Registration failed: " + error.message);
+      if (error.code === "auth/email-already-in-use") {
+        alert("The email is already in use. Please use a different email.");
+      } else if (error.code === "auth/weak-password") {
+        alert("The password is too weak. Please use a stronger password.");
+      } else {
+        alert("Registration failed: " + error.message);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
-  //register function with firebase
 
   return (
     <div className="w-full max-w-md">
@@ -149,8 +163,9 @@ const CommonForm = ({ onRoleSelect }) => {
         <button
           type="submit"
           className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          disabled={isLoading}
         >
-          {isLogin ? "Login" : "Register"}
+          {isLoading ? "Loading..." : isLogin ? "Login" : "Register"}
         </button>
       </form>
       <div className="mt-4 text-center">

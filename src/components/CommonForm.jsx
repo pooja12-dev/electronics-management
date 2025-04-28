@@ -5,13 +5,14 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-
+import { saveUserToFirestore } from "./userService"; // Import Firestore service
 const CommonForm = ({ onRoleSelect }) => {
   const [selectedRole, setSelectedRole] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [name, setName] = useState(""); // New state for name
 
   const navigate = useNavigate();
 
@@ -47,6 +48,8 @@ const CommonForm = ({ onRoleSelect }) => {
         password
       );
       console.log("User logged in:", userCredential.user);
+      // After login, check if user exists in Firestore and add data if not
+      await saveUserToFirestore(userCredential.user.uid, name, selectedRole);
       navigate(`/dashboard/${selectedRole}`);
     } catch (error) {
       console.error("Login failed:", error.message);
@@ -72,6 +75,8 @@ const CommonForm = ({ onRoleSelect }) => {
         password
       );
       console.log("User registered:", userCredential.user);
+      // After login, check if user exists in Firestore and add data if not
+      await saveUserToFirestore(userCredential.user.uid, name, selectedRole);
       alert("Registration successful! Please log in.");
       setIsLogin(true); // Switch to login view after successful registration
     } catch (error) {

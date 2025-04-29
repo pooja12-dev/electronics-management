@@ -1,7 +1,11 @@
 import { useState } from "react";
 import TaskAssign from "./TaskAssign";
-
+import { createTask } from "../../userService";
+import { getDocs, collection } from "firebase/firestore";
+import { db } from "../../firebase";
+import { useEffect } from "react";
 export default function TaskAssignment() {
+  const [users, setUsers] = useState([]);
   const [newTask, setNewTask] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -16,29 +20,49 @@ export default function TaskAssignment() {
     },
   ]);
   const [dueDate, setDueDate] = useState(null);
+  const [error, setError] = useState(null);
 
-  const handleAddTask = () => {
-    if (newTask.trim()) {
-      const today = new Date();
-      const dateStr = today.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      });
+  const handleAddTask = async () => {
+    if (newTask.trim() && selectedUser && dueDate) {
+      try {
+        // Convert date string to timestamp
+        const dueDateTimestamp = new Date(dueDate);
 
-      setTasks([
-        ...tasks,
-        {
-          id: tasks.length + 1,
-          title: newTask,
-          date: dueDate || dateStr,
-          completed: false,
-          assignedTo: selectedUser,
-        },
-      ]);
-      setNewTask("");
-      setDueDate(null);
-      setSelectedUser(null);
+        await createTask({
+          taskName: newTask,
+          assigneeId: selectedUser.id,
+          reporterId: "3123456#", // replace with current logged-in user's UID
+          dueDate: dueDateTimestamp,
+        });
+        console.log()
+
+        // // Optional: Optimistically update UI
+        const dateStr = dueDateTimestamp.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
+
+        setTasks([
+          ...tasks,
+          {
+            id: tasks.length + 1,
+            title: newTask,
+            date: dateStr,
+            completed: false,
+            assignedTo: selectedUser,
+          },
+        ]);
+
+        setNewTask("");
+        setDueDate(null);
+        setSelectedUser(null);
+      } catch (error) {
+        console.error("Error creating task:", error);
+        setError("Failed to create task");
+      }
+    } else {
+      alert("Please fill in all fields.");
     }
   };
 
@@ -60,6 +84,31 @@ export default function TaskAssignment() {
     setDueDate(null);
     setSelectedUser(null);
   };
+
+  //useeffect to fetch data
+  useEffect(() => {
+    console.log("useEffect triggered");
+    const fetchUsers = async () => {
+      try {
+        const usersSnapshot = await getDocs(collection(db, "users"));
+        const usersList = usersSnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            name: data.name,
+            role: data.role,
+          };
+        });
+        setUsers(usersList);
+      } catch (err) {
+        setError(err.message);
+        console.error("Error fetching users:", err.message);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+  // useeffect to fetch user
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-sm">
@@ -84,8 +133,9 @@ export default function TaskAssignment() {
             onChange={(e) => setDueDate(e.target.value)}
           />
           <TaskAssign
-            onUserSelect={(user) => setSelectedUser(user)}
+            users={users}
             selectedUser={selectedUser}
+            onUserSelect={(user) => setSelectedUser(user)}
           />
           <button
             className="px-4 py-2 bg-indigo-600 text-white rounded-md"

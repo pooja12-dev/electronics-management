@@ -19,6 +19,7 @@ const UserManagement = () => {
     email: "",
     role: "User",
     createdAt: "",
+    name: "",
   });
   const [error, setError] = useState(null);
   useEffect(() => {

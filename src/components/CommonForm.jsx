@@ -4,13 +4,15 @@ import {
   getFirestore,
   doc,
   getDoc,
+  setDoc,
   getDocs,
   collection,
 } from "firebase/firestore"; //to get user role
-import { auth } from "../firebase"; // Ensure this points to your Firebase config file
+import { auth, googleProvider } from "../firebase"; // Ensure this points to your Firebase config file
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signInWithPopup,
 } from "firebase/auth";
 import { saveUserToFirestore } from "../userService"; // Import Firestore service
 import { useRole } from "../RoleContext"; // Import the context hook
@@ -113,7 +115,8 @@ const CommonForm = ({ onRoleSelect }) => {
         const saveResult = await saveUserToFirestore(
           userCredential.user.uid,
           email,
-          selectedRole
+          selectedRole,
+          name
         );
         if (saveResult) {
           alert("Registration successful! Please log in.");
@@ -137,6 +140,84 @@ const CommonForm = ({ onRoleSelect }) => {
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+  const handleGoogleSignIn = async (selectedRole) => {
+    if (!selectedRole) {
+      alert("Please select a role before continuing.");
+      return;
+    }
+
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      // Save user details to Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        email: user.email,
+        name: user.displayName,
+        photo: user.photoURL,
+        role: selectedRole,
+      });
+
+      // Wait for Firestore to confirm
+      const docRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const savedRole = docSnap.data().role;
+        alert("Google Sign-in successful!");
+
+        // You can optionally update RoleContext here too (if it's manually managed)
+        // setRole(savedRole); // if you expose this via context
+
+        navigate(`/dashboard/${savedRole}`);
+      } else {
+        alert("User role data not found.");
+      }
+      alert("Google Sign-in successful!");
+      navigate(`/dashboard/${selectedRole}`);
+    } catch (error) {
+      console.error("Google sign-in failed:", error.message);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      // Fetch role from Firestore
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const role = userData.role;
+
+        console.log("User logged in with role:", role);
+
+        // Store in localStorage (optional but useful for RoleContext fallback)
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            uid: user.uid,
+            email: user.email,
+            name: user.displayName,
+            photo: user.photoURL,
+            role: role, // store the role too
+          })
+        );
+
+        // Navigate only after role is known
+        navigate(`/dashboard/${role}`);
+      } else {
+        console.warn("No user role found in Firestore.");
+        alert("User role not found. Please contact admin.");
+      }
+    } catch (error) {
+      console.error("Google login error:", error);
+      alert("Google login failed: " + error.message);
     }
   };
 
@@ -179,6 +260,20 @@ const CommonForm = ({ onRoleSelect }) => {
           Enter Your Credentials
         </h2>
         <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">
+            Name
+          </label>
+          <input
+            id="registerName"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            placeholder="Enter your name"
+            required
+          />
+        </div>
+        <div className="mb-4">
           <label
             htmlFor="email"
             className="block text-sm font-medium text-gray-700"
@@ -220,6 +315,25 @@ const CommonForm = ({ onRoleSelect }) => {
           {isLoading ? "Loading..." : isLogin ? "Login" : "Register"}
         </button>
       </form>
+      {!isLogin ? (
+        <div className="mt-4">
+          <button
+            onClick={() => handleGoogleSignIn(selectedRole)}
+            className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          >
+            Sign in with Google
+          </button>
+        </div>
+      ) : (
+        <div className="mt-4">
+          <button
+            onClick={handleGoogleLogin}
+            className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          >
+            Login in with Google
+          </button>
+        </div>
+      )}
       <div className="mt-4 text-center">
         <button
           className="text-blue-600 underline"

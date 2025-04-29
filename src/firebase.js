@@ -33,4 +33,4 @@ export const auth = getAuth(app);
 // Initialize Firestore
 const db = getFirestore(app);
 
-export { db};
+export { db, googleProvider};

@@ -10,7 +10,7 @@ import {
 } from "firebase/firestore";
 import { db, auth } from "./firebase"; // Import Firestore instance
 
-export const saveUserToFirestore = async (userId, email, role) => {
+export const saveUserToFirestore = async (userId, email, role, name) => {
   const userRef = doc(db, "users", userId); // Reference to the user document in Firestore
 
   try {
@@ -18,6 +18,7 @@ export const saveUserToFirestore = async (userId, email, role) => {
       email: email, // Store the email as user identifier
       role: role, // Store the user's role
       createdAt: new Date(), // Store creation date
+      name: name,
     });
     console.log("User data saved successfully!");
     return true; // Return success flag

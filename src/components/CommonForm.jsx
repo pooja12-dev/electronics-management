@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getFirestore, doc, getDoc } from "firebase/firestore"; //to get user role
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  getDocs,
+  collection,
+} from "firebase/firestore"; //to get user role
 import { auth } from "../firebase"; // Ensure this points to your Firebase config file
 import {
   createUserWithEmailAndPassword,
@@ -30,6 +36,8 @@ const CommonForm = ({ onRoleSelect }) => {
     { id: "employee", label: "Employee", icon: "🏢" },
   ];
   useEffect(() => {
+    // const usersSnapshot = await getDocs(collection(db, "users"));
+    // console.log("usersSnapshot", usersSnapshot);
     // This effect could be used to handle other logic based on the user's role
     if (userRole) {
       console.log("Role updated:", userRole);
@@ -43,10 +51,10 @@ const CommonForm = ({ onRoleSelect }) => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (!selectedRole) {
-      alert("Please select a role before logging in.");
-      return;
-    }
+    // if (!selectedRole) {
+    //   alert("Please select a role before logging in.");
+    //   return;
+    // }
 
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -55,9 +63,11 @@ const CommonForm = ({ onRoleSelect }) => {
         password
       );
       const user = userCredential.user;
+      console.log("users from cf", user);
 
       // Fetch user data (role) from Firestore
       const userRef = doc(db, "users", user.uid);
+      console.log("users ref from cf", userRef);
       const docSnap = await getDoc(userRef);
 
       if (docSnap.exists()) {

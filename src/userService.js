@@ -1,6 +1,14 @@
 // userService.js
-import { doc, setDoc } from "firebase/firestore";
-import { db } from "./firebase"; // Import Firestore instance
+import {
+  doc,
+  setDoc,
+  getDoc,
+  collection,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
+import { db, auth } from "./firebase"; // Import Firestore instance
 
 export const saveUserToFirestore = async (userId, email, role) => {
   const userRef = doc(db, "users", userId); // Reference to the user document in Firestore
@@ -16,5 +24,21 @@ export const saveUserToFirestore = async (userId, email, role) => {
   } catch (error) {
     console.error("Error saving user data: ", error.message);
     return false; // Return failure flag
+  }
+};
+
+// Fetch users and roles
+// Function to fetch users and their roles
+export const getUserRoleFromFirestore = async (userId) => {
+  try {
+    const userDoc = await getDoc(doc(db, "users", userId));
+    if (userDoc.exists()) {
+      return userDoc.data().role; // Fetch role
+    } else {
+      throw new Error("User document not found");
+    }
+  } catch (error) {
+    console.error("Error fetching user role:", error);
+    throw error;
   }
 };

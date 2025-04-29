@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
 import UserTable from "../../components/UserTable";
 import { FaEdit, FaTrashAlt, FaUserPlus } from "react-icons/fa"; // Added FaUserPlus icon
+import { getUserRoleFromFirestore } from "../../userService";
+import { getDocs, collection } from "firebase/firestore";
+import { db } from "../../firebase";
 
 const UserManagement = () => {
+  console.log("user management component rendered");
   const [users, setUsers] = useState([]); // Initialize users state
   const [paginatedUsers, setPaginatedUsers] = useState([]);
   const [editingUserId, setEditingUserId] = useState(null);
@@ -12,75 +16,50 @@ const UserManagement = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [newUserData, setNewUserData] = useState({
-    name: "",
     email: "",
     role: "User",
-    permission: "Granted",
+    createdAt: "",
   });
-
+  const [error, setError] = useState(null);
   useEffect(() => {
+    console.log("useEffect triggered");
+
     const fetchUsers = async () => {
-      // Mock data for users (replace with actual API call)
-      const mockUsers = [
-        {
-          id: 1,
-          name: "Alice",
-          email: "alice@example.com",
-          role: "Admin",
-          permission: "Granted",
-        },
-        {
-          id: 2,
-          name: "Bob",
-          email: "bob@example.com",
-          role: "Manager",
-          permission: "Revoked",
-        },
-        {
-          id: 3,
-          name: "Charlie",
+      console.log("Fetching users...");
+      try {
+        const usersSnapshot = await getDocs(collection(db, "users"));
+        const usersFromFirebase = usersSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
 
-          email: "char@example.com",
-          role: "Developer",
-          permission: "Revoked",
-        },
-        {
-          id: 4,
-          name: "Harry",
-
-          email: "harry@example.com",
-          role: "Employee",
-          permission: "Granted",
-        },
-        {
-          id: 5,
-          name: "Sara Kim",
-
-          email: "sara@example.com",
-          role: "Manager",
-          permission: "granted",
-        },
-      ];
-      setUsers(mockUsers);
-      setPaginatedUsers(mockUsers.slice(0, 5)); // Paginate users
-      setTotalItems(mockUsers.length);
-      setTotalPages(Math.ceil(mockUsers.length / 5));
+        console.log("Fetched users: ", usersFromFirebase);
+        setUsers(usersFromFirebase);
+      } catch (err) {
+        setError(err.message);
+        console.error("Error fetching users:", err.message);
+      }
     };
+
     fetchUsers();
   }, []);
 
-  const togglePermission = (userId) => {
-    setUsers((prevUsers) =>
-      prevUsers.map((user) =>
-        user.id === userId
-          ? {
-              ...user,
-              permission: user.permission === "Granted" ? "Revoked" : "Granted",
-            }
-          : user
-      )
-    );
-  };
+  // Log whenever users state changes
+  // useEffect(() => {
+  //   console.log("Users state changed:", users);
+  // }, [users]);
+  // const togglePermission = (userId) => {
+  //   setUsers((prevUsers) =>
+  //     prevUsers.map((user) =>
+  //       user.id === userId
+  //         ? {
+  //             ...user,
+  //             permission: user.permission === "Granted" ? "Revoked" : "Granted",
+  //           }
+  //         : user
+  //     )
+  //   );
+  // };
 
   const handleEditUser = (userId) => {
     setEditingUserId(userId);
@@ -112,7 +91,7 @@ const UserManagement = () => {
     setNewUserData({
       name: "",
       email: "",
-      role: "User",
+      role: "Administrator",
       permission: "Granted",
     });
   };
@@ -172,7 +151,7 @@ const UserManagement = () => {
         paginatedUsers={paginatedUsers}
         editingUserId={editingUserId}
         editingUserData={editingUserData}
-        togglePermission={togglePermission}
+        // togglePermission={togglePermission}
         handleEditUser={handleEditUser}
         saveEditedUser={saveEditedUser}
         deleteUser={deleteUser}

@@ -2,44 +2,40 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUsers, addUser, updateUser, deleteUser } from '../slice/userSlice';
 
+const roles = ['Supervisor', 'Admin', 'Manager', 'Vendor', 'Employee']; // Fixed roles
+
 const Management = () => {
   const dispatch = useDispatch();
   const { data: users, loading, error } = useSelector((state) => state.users);
 
-  const [formData, setFormData] = useState({
-    id: '',
-    email: '',
-    role: '',
-  });
-
-  const [editing, setEditing] = useState(false);
+  const [newUser, setNewUser] = useState({ email: '', role: roles[0] });
+  const [editUser, setEditUser] = useState(null);
 
   useEffect(() => {
     dispatch(fetchUsers());
   }, [dispatch]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = (e) => {
+  const handleAddUser = (e) => {
     e.preventDefault();
-    if (editing) {
-      dispatch(updateUser(formData));
-    } else {
-      dispatch(addUser(formData));
+    if (newUser.email) {
+      dispatch(addUser(newUser));
+      setNewUser({ email: '', role: roles[0] });
     }
-    setFormData({ id: '', email: '', role: '' });
-    setEditing(false);
   };
 
-  const handleEdit = (user) => {
-    setFormData(user);
-    setEditing(true);
+  const handleEditUser = (user) => {
+    setEditUser(user);
   };
 
-  const handleDelete = (id) => {
+  const handleUpdateUser = (e) => {
+    e.preventDefault();
+    if (editUser) {
+      dispatch(updateUser(editUser));
+      setEditUser(null); // Reset form
+    }
+  };
+
+  const handleDeleteUser = (id) => {
     dispatch(deleteUser(id));
   };
 
@@ -47,60 +43,70 @@ const Management = () => {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="p-4">
+    <div>
       <h1 className="text-2xl font-bold mb-4">User Management</h1>
 
-      <form onSubmit={handleSubmit} className="mb-6">
+      {/* Add User Form */}
+      <form
+        onSubmit={handleAddUser}
+        className="mb-6 bg-gray-100 p-4 rounded-md shadow-md"
+      >
+        <h2 className="text-xl font-semibold mb-4">Add User</h2>
         <div className="mb-4">
-          <label className="block font-medium mb-1">Email:</label>
+          <label className="block text-gray-700 font-medium mb-2">Email:</label>
           <input
             type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
+            value={newUser.email}
+            onChange={(e) =>
+              setNewUser({ ...newUser, email: e.target.value })
+            }
             required
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            className="w-full px-3 py-2 border rounded-md"
           />
         </div>
         <div className="mb-4">
-          <label className="block font-medium mb-1">Role:</label>
-          <input
-            type="text"
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            required
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
-          />
+          <label className="block text-gray-700 font-medium mb-2">Role:</label>
+          <select
+            value={newUser.role}
+            onChange={(e) =>
+              setNewUser({ ...newUser, role: e.target.value })
+            }
+            className="w-full px-3 py-2 border rounded-md"
+          >
+            {roles.map((role) => (
+              <option key={role} value={role}>
+                {role}
+              </option>
+            ))}
+          </select>
         </div>
         <button
           type="submit"
-          className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+          className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
         >
-          {editing ? 'Update User' : 'Add User'}
+          Add User
         </button>
       </form>
 
-      <ul className="space-y-4">
+      {/* User List */}
+      <ul className="divide-y divide-gray-200">
         {users.map((user) => (
-          <li
-            key={user.id}
-            className="flex justify-between items-center p-4 border rounded-lg"
-          >
+          <li key={user.id} className="flex justify-between items-center py-3">
             <div>
-              <p className="font-medium">{user.email}</p>
-              <p className="text-sm text-gray-500">Role: {user.role}</p>
+              <p>
+                <span className="font-semibold">{user.email}</span> - {user.role}
+              </p>
             </div>
             <div className="space-x-2">
               <button
-                onClick={() => handleEdit(user)}
-                className="px-3 py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-colors"
+                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                onClick={() => handleEditUser(user)}
               >
                 Edit
               </button>
               <button
-                onClick={() => handleDelete(user.id)}
-                className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                onClick={() => handleDeleteUser(user.id)}
               >
                 Delete
               </button>
@@ -108,6 +114,47 @@ const Management = () => {
           </li>
         ))}
       </ul>
+
+      {/* Edit User Form */}
+      {editUser && (
+        <form
+          onSubmit={handleUpdateUser}
+          className="mt-6 bg-gray-100 p-4 rounded-md shadow-md"
+        >
+          <h2 className="text-xl font-semibold mb-4">Edit User</h2>
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium mb-2">Email:</label>
+            <input
+              type="email"
+              value={editUser.email}
+              disabled
+              className="w-full px-3 py-2 border rounded-md bg-gray-200"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium mb-2">Role:</label>
+            <select
+              value={editUser.role}
+              onChange={(e) =>
+                setEditUser({ ...editUser, role: e.target.value })
+              }
+              className="w-full px-3 py-2 border rounded-md"
+            >
+              {roles.map((role) => (
+                <option key={role} value={role}>
+                  {role}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button
+            type="submit"
+            className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+          >
+            Update User
+          </button>
+        </form>
+      )}
     </div>
   );
 };

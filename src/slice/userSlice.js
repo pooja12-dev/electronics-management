@@ -1,44 +1,36 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { db } from '../firebase';
-import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { db } from "../firebase";
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore";
 
 // Fetch Users
-export const fetchUsers = createAsyncThunk('users/fetchUsers', async () => {
-  const usersCollection = collection(db, 'users');
+export const fetchUsers = createAsyncThunk("users/fetchUsers", async () => {
+  const usersCollection = collection(db, "users");
   const usersSnapshot = await getDocs(usersCollection);
-  return usersSnapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
+  return usersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 });
 
 // Add User
-export const addUser = createAsyncThunk('users/addUser', async (user) => {
-  const usersCollection = collection(db, 'users');
-  const newUser = {
-    ...user,
-    createdAt: new Date().toISOString(),
-  };
-  const docRef = await addDoc(usersCollection, newUser);
-  return { id: docRef.id, ...newUser };
+export const addUser = createAsyncThunk("users/addUser", async (newUser) => {
+  const userWithTimestamp = { ...newUser, createdAt: serverTimestamp() };
+  const userRef = await addDoc(collection(db, "users"), userWithTimestamp);
+  return { id: userRef.id, ...userWithTimestamp };
 });
 
 // Update User
-export const updateUser = createAsyncThunk('users/updateUser', async (user) => {
-  const userDoc = doc(db, 'users', user.id);
-  await updateDoc(userDoc, user);
+export const updateUser = createAsyncThunk("users/updateUser", async (user) => {
+  const userRef = doc(db, "users", user.id);
+  await updateDoc(userRef, user);
   return user;
 });
 
 // Delete User
-export const deleteUser = createAsyncThunk('users/deleteUser', async (id) => {
-  const userDoc = doc(db, 'users', id);
-  await deleteDoc(userDoc);
+export const deleteUser = createAsyncThunk("users/deleteUser", async (id) => {
+  await deleteDoc(doc(db, "users", id));
   return id;
 });
 
 const userSlice = createSlice({
-  name: 'users',
+  name: "users",
   initialState: {
     data: [],
     loading: false,
@@ -64,7 +56,9 @@ const userSlice = createSlice({
       })
       .addCase(updateUser.fulfilled, (state, action) => {
         const index = state.data.findIndex((user) => user.id === action.payload.id);
-        if (index !== -1) state.data[index] = action.payload;
+        if (index !== -1) {
+          state.data[index] = action.payload;
+        }
       })
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.data = state.data.filter((user) => user.id !== action.payload);

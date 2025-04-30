@@ -1,53 +1,39 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { db } from '../firebase'; // Your Firestore instance
-import {
-  collection,
-  getDocs,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc,
-} from 'firebase/firestore';
+import { db } from '../firebase';
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
 
-// Fetch users
+// Fetch Users
 export const fetchUsers = createAsyncThunk('users/fetchUsers', async () => {
   const usersCollection = collection(db, 'users');
   const usersSnapshot = await getDocs(usersCollection);
-  const users = usersSnapshot.docs.map((doc) => {
-    const data = doc.data();
-
-    // Convert Firestore Timestamps to ISO string format (serializable)
-    return {
-      id: doc.id,
-      ...data,
-      createdAt: data.createdAt ? data.createdAt.toDate().toISOString() : null, // Convert to string
-    };
-  });
-
-  return users;
+  return usersSnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
 });
 
-// Add user
-export const addUser = createAsyncThunk('users/addUser', async (newUser) => {
+// Add User
+export const addUser = createAsyncThunk('users/addUser', async (user) => {
   const usersCollection = collection(db, 'users');
+  const newUser = {
+    ...user,
+    createdAt: new Date().toISOString(),
+  };
   const docRef = await addDoc(usersCollection, newUser);
   return { id: docRef.id, ...newUser };
 });
 
-// Update user
-export const updateUser = createAsyncThunk(
-  'users/updateUser',
-  async (updatedUser) => {
-    const userDocRef = doc(db, 'users', updatedUser.id);
-    await updateDoc(userDocRef, updatedUser);
-    return updatedUser;
-  }
-);
+// Update User
+export const updateUser = createAsyncThunk('users/updateUser', async (user) => {
+  const userDoc = doc(db, 'users', user.id);
+  await updateDoc(userDoc, user);
+  return user;
+});
 
-// Delete user
+// Delete User
 export const deleteUser = createAsyncThunk('users/deleteUser', async (id) => {
-  const userDocRef = doc(db, 'users', id);
-  await deleteDoc(userDocRef);
+  const userDoc = doc(db, 'users', id);
+  await deleteDoc(userDoc);
   return id;
 });
 
@@ -61,7 +47,6 @@ const userSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Fetch users
       .addCase(fetchUsers.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -74,47 +59,15 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-
-      // Add user
-      .addCase(addUser.pending, (state) => {
-        state.loading = true;
-      })
       .addCase(addUser.fulfilled, (state, action) => {
-        state.loading = false;
         state.data.push(action.payload);
       })
-      .addCase(addUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-      })
-
-      // Update user
-      .addCase(updateUser.pending, (state) => {
-        state.loading = true;
-      })
       .addCase(updateUser.fulfilled, (state, action) => {
-        state.loading = false;
         const index = state.data.findIndex((user) => user.id === action.payload.id);
-        if (index !== -1) {
-          state.data[index] = action.payload;
-        }
-      })
-      .addCase(updateUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-      })
-
-      // Delete user
-      .addCase(deleteUser.pending, (state) => {
-        state.loading = true;
+        if (index !== -1) state.data[index] = action.payload;
       })
       .addCase(deleteUser.fulfilled, (state, action) => {
-        state.loading = false;
         state.data = state.data.filter((user) => user.id !== action.payload);
-      })
-      .addCase(deleteUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
       });
   },
 });

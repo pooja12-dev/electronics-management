@@ -23,15 +23,11 @@ const Management = () => {
     }
   };
 
-  const handleEditUser = (user) => {
-    setEditUser(user);
-  };
-
   const handleUpdateUser = (e) => {
     e.preventDefault();
     if (editUser) {
       dispatch(updateUser(editUser));
-      setEditUser(null); // Reset form
+      setEditUser(null); // Close modal
     }
   };
 
@@ -100,7 +96,7 @@ const Management = () => {
             <div className="space-x-2">
               <button
                 className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-                onClick={() => handleEditUser(user)}
+                onClick={() => setEditUser(user)}
               >
                 Edit
               </button>
@@ -115,45 +111,64 @@ const Management = () => {
         ))}
       </ul>
 
-      {/* Edit User Form */}
+      {/* Edit User Modal */}
       {editUser && (
-        <form
-          onSubmit={handleUpdateUser}
-          className="mt-6 bg-gray-100 p-4 rounded-md shadow-md"
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+          onClick={() => setEditUser(null)} // Close modal on overlay click
         >
-          <h2 className="text-xl font-semibold mb-4">Edit User</h2>
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">Email:</label>
-            <input
-              type="email"
-              value={editUser.email}
-              disabled
-              className="w-full px-3 py-2 border rounded-md bg-gray-200"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">Role:</label>
-            <select
-              value={editUser.role}
-              onChange={(e) =>
-                setEditUser({ ...editUser, role: e.target.value })
-              }
-              className="w-full px-3 py-2 border rounded-md"
-            >
-              {roles.map((role) => (
-                <option key={role} value={role}>
-                  {role}
-                </option>
-              ))}
-            </select>
-          </div>
-          <button
-            type="submit"
-            className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+          <div
+            className="bg-white p-6 rounded-md shadow-md max-w-sm w-full"
+            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
           >
-            Update User
-          </button>
-        </form>
+            <h2 className="text-xl font-semibold mb-4">Edit User</h2>
+            <form onSubmit={handleUpdateUser}>
+              <div className="mb-4">
+                <label className="block text-gray-700 font-medium mb-2">Email:</label>
+                <input
+                  type="email"
+                  value={editUser.email}
+                  onChange={(e) =>
+                    setEditUser({ ...editUser, email: e.target.value })
+                  }
+                  required
+                  className="w-full px-3 py-2 border rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 font-medium mb-2">Role:</label>
+                <select
+                  value={editUser.role}
+                  onChange={(e) =>
+                    setEditUser({ ...editUser, role: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border rounded-md"
+                >
+                  {roles.map((role) => (
+                    <option key={role} value={role}>
+                      {role}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex justify-end space-x-2">
+                <button
+                  type="button"
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
+                  onClick={() => setEditUser(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+                >
+                  Update User
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -1,14 +1,14 @@
-// InventoryTable.jsx
 import React, { useState } from "react";
 import { InventoryTableRow } from "./InventoryTableRow";
+import AddProductForm from "../pages/AdminPages/AddProductForm"; // Update the path as needed
 
 export function InventoryTable({
   products,
   title = "Inventory",
-  onAddProduct = () =>
-    alert("Add product functionality would open a form here"),
+  onAddProduct = () => {},
 }) {
   const [currentPage, setCurrentPage] = useState(1);
+  const [showAddProductForm, setShowAddProductForm] = useState(false); // Manage form visibility
   const itemsPerPage = 6;
 
   // Calculate pagination values
@@ -31,13 +31,21 @@ export function InventoryTable({
       <div className="p-4 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <h2 className="text-lg font-medium">{title}</h2>
         <button
-          onClick={onAddProduct}
+          onClick={() => setShowAddProductForm((prev) => !prev)}
           className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
         >
-          New Product
+          {showAddProductForm ? "Close Form" : "New Product"}
         </button>
       </div>
 
+      {/* Add Product Form */}
+      {showAddProductForm && (
+        <div className="p-4 border-b">
+          <AddProductForm onSuccess={() => setShowAddProductForm(false)} />
+        </div>
+      )}
+
+      {/* Table Section */}
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
@@ -67,6 +75,7 @@ export function InventoryTable({
         </table>
       </div>
 
+      {/* Pagination Section */}
       {products.length > 0 && (
         <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-t">
           <div className="text-sm text-gray-500 mb-3 sm:mb-0">

@@ -58,7 +58,7 @@ function App() {
             <Route path="teams-data" element={<TeamDataPage />} />
             <Route
               path="inventory-management"
-              element={<InventoryManagementCopy/>}
+              element={<InventoryDashboard/>}
             />
             <Route path="assign-tasks" element={<TaskAssignment />} />
             <Route path="logs" element={<Logs />} />

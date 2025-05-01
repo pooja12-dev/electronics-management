@@ -1,8 +1,14 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { db } from "../firebase"; // Ensure Firestore is correctly configured
-import { collection, getDocs } from "firebase/firestore";
+import { db } from "../firebase";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 
-// Fetch inventory items from Firestore
+// Fetch inventory
 export const fetchInventory = createAsyncThunk(
   "inventory/fetchInventory",
   async () => {
@@ -10,34 +16,50 @@ export const fetchInventory = createAsyncThunk(
     const inventorySnapshot = await getDocs(inventoryCollection);
     const inventory = inventorySnapshot.docs.map((doc) => {
       const data = doc.data();
-
-      // Safely handle Firestore Timestamps
-      const createdAt =
-        data.createdAt && data.createdAt.toDate
-          ? data.createdAt.toDate().toISOString()
-          : null;
-
       return {
         id: doc.id,
         ...data,
-        createdAt, // Ensure createdAt is properly formatted if it exists
+        createdAt:
+          data.createdAt && typeof data.createdAt.toDate === "function"
+            ? data.createdAt.toDate().toISOString()
+            : data.createdAt || null,
       };
     });
-
     return inventory;
   }
 );
 
+// Add product
+export const addProductToStore = createAsyncThunk(
+  "inventory/addProduct",
+  async (product) => {
+    const docRef = await addDoc(collection(db, "inventory"), product);
+    return { id: docRef.id, ...product };
+  }
+);
+
+// Edit product
+export const editProductInStore = createAsyncThunk(
+  "inventory/editProduct",
+  async (product) => {
+    const productRef = doc(db, "inventory", product.id);
+    await updateDoc(productRef, product);
+    return product;
+  }
+);
+
+// Inventory slice
 const inventorySlice = createSlice({
   name: "inventory",
   initialState: {
     data: [],
     loading: false,
     error: null,
+    categoryFilter: "",
   },
   reducers: {
-    setProducts: (state, action) => {
-      state.data = action.payload;
+    setCategoryFilter: (state, action) => {
+      state.categoryFilter = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -53,14 +75,21 @@ const inventorySlice = createSlice({
       .addCase(fetchInventory.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
-        console.error(
-          "[InventorySlice] Fetch Inventory Rejected:",
-          action.error.message
+      })
+      .addCase(addProductToStore.fulfilled, (state, action) => {
+        state.data.push(action.payload);
+      })
+      .addCase(editProductInStore.fulfilled, (state, action) => {
+        const index = state.data.findIndex(
+          (item) => item.id === action.payload.id
         );
+        if (index !== -1) {
+          state.data[index] = action.payload;
+        }
       });
   },
 });
 
-export const { setProducts } = inventorySlice.actions;
+export const { setCategoryFilter } = inventorySlice.actions;
 
 export default inventorySlice.reducer;

@@ -22,6 +22,8 @@ import Management from "./pages/Managementcopy";
 import InventoryManagementCopy from "./pages/InventorymanageCopy";
 import InventoryPage from "./pages/InventorymanageCopy";
 import InvoicePage from "./pages/AdminPages/InvoicePageCopy";
+import AdminTaskDashboard from "./pages/AdminPages/taskAssignmentCopy";
+import SampleUserList from "./pages/AdminPages/SampleUserList";
 function App() {
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true); // ⬅️ new loading state
@@ -59,7 +61,7 @@ function App() {
             {/* <Route path="stock-needs" element={<StockLayout role={role} />} /> */}
             <Route path="teams-data" element={<TeamDataPage />} />
             <Route path="inventory-management" element={<InventoryPage />} />
-            <Route path="assign-tasks" element={<TaskAssignment />} />
+            <Route path="assign-tasks" element={<AdminTaskDashboard />} />
             <Route path="logs" element={<Logs />} />
             <Route path="security-settings" element={<SecuritySettings />} />
             <Route path="user-management" element={<Management />} />

@@ -34,7 +34,7 @@ const LowStockAlert = () => {
         }
       });
     }
-  }, [products]);
+  }, []);
 
   if (loading) {
     return <p>Loading...</p>;

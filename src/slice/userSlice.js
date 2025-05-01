@@ -1,12 +1,27 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { db } from "../firebase";
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  serverTimestamp,
+} from "firebase/firestore";
 
 // Fetch Users
 export const fetchUsers = createAsyncThunk("users/fetchUsers", async () => {
   const usersCollection = collection(db, "users");
   const usersSnapshot = await getDocs(usersCollection);
-  return usersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  return usersSnapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      createdAt: data.createdAt ? data.createdAt.toDate().toISOString() : null, // Convert Timestamp to ISO string
+    };
+  });
 });
 
 // Add User
@@ -55,7 +70,9 @@ const userSlice = createSlice({
         state.data.push(action.payload);
       })
       .addCase(updateUser.fulfilled, (state, action) => {
-        const index = state.data.findIndex((user) => user.id === action.payload.id);
+        const index = state.data.findIndex(
+          (user) => user.id === action.payload.id
+        );
         if (index !== -1) {
           state.data[index] = action.payload;
         }

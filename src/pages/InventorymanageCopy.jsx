@@ -12,7 +12,7 @@ const InventoryPage = () => {
     loading,
     error,
   } = useSelector((state) => state.inventory);
-
+ 
   useEffect(() => {
     console.log("[InventoryManagement] Fetching Inventory...");
     dispatch(fetchInventory());

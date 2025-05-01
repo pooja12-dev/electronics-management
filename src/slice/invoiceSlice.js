@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
+// Async Thunk to fetch invoices from Firestore
 export const fetchInvoices = createAsyncThunk('invoices/fetchInvoices', async () => {
   const invoiceCollection = collection(db, 'invoices');
   const querySnapshot = await getDocs(invoiceCollection);
@@ -19,6 +20,23 @@ export const fetchInvoices = createAsyncThunk('invoices/fetchInvoices', async ()
   });
 });
 
+// Async Thunk to add a new invoice to Firestore
+export const addInvoice = createAsyncThunk('invoices/addInvoice', async (invoiceData) => {
+  const invoiceCollection = collection(db, 'invoices');
+  const newInvoice = await addDoc(invoiceCollection, {
+    Customer: invoiceData.customer,
+    Description: invoiceData.description,
+    date: invoiceData.date,
+    status: invoiceData.status,
+    total: invoiceData.total,
+    type: invoiceData.type,
+  });
+  return {
+    id: newInvoice.id,
+    ...invoiceData, // Include all invoice data along with the generated ID
+  };
+});
+
 const invoiceSlice = createSlice({
   name: 'invoices',
   initialState: {
@@ -29,6 +47,7 @@ const invoiceSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // Fetch invoices
       .addCase(fetchInvoices.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -38,6 +57,20 @@ const invoiceSlice = createSlice({
         state.data = action.payload;
       })
       .addCase(fetchInvoices.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
+      // Add a new invoice
+      .addCase(addInvoice.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addInvoice.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data.push(action.payload); // Add the new invoice to the state
+      })
+      .addCase(addInvoice.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

@@ -6,9 +6,9 @@ import jsPDF from 'jspdf';
 const InvoicePage = () => {
   const dispatch = useDispatch();
   const { data: invoices, loading, error } = useSelector((state) => state.invoices);
-  const [view, setView] = useState('table'); // State to toggle views
-  const [selectedInvoice, setSelectedInvoice] = useState(null); // For modal
-  const [showModal, setShowModal] = useState(false); // Modal visibility state
+  const [view, setView] = useState('table');
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     dispatch(fetchInvoices());
@@ -35,42 +35,20 @@ const InvoicePage = () => {
     doc.save(`Invoice_${invoice.customer}.pdf`);
   };
 
-  if (loading) {
-    return <p>Loading invoices...</p>;
-  }
+  const shareViaGmail = (invoice) => {
+    const subject = encodeURIComponent(`Invoice Details for ${invoice.customer}`);
+    const body = encodeURIComponent(`
+      Here are the details of the invoice:
+      - Customer: ${invoice.customer}
+      - Description: ${invoice.description}
+      - Date: ${new Date(invoice.date).toLocaleDateString()}
+      - Status: ${invoice.status}
+      - Total: ₹${invoice.total}
+      - Type: ${invoice.type}
+    `);
 
-  if (error) {
-    return <p>Error loading invoices: {error}</p>;
-  }
-
-  const renderTableView = () => (
-    <table className="table-auto w-full border-collapse border border-gray-200">
-      <thead>
-        <tr>
-          <th className="border border-gray-200 px-4 py-2">Customer</th>
-          <th className="border border-gray-200 px-4 py-2">Description</th>
-          <th className="border border-gray-200 px-4 py-2">Date</th>
-          <th className="border border-gray-200 px-4 py-2">Status</th>
-          <th className="border border-gray-200 px-4 py-2">Total</th>
-          <th className="border border-gray-200 px-4 py-2">Type</th>
-        </tr>
-      </thead>
-      <tbody>
-        {invoices.map((invoice) => (
-          <tr key={invoice.id}>
-            <td className="border border-gray-200 px-4 py-2">{invoice.customer}</td>
-            <td className="border border-gray-200 px-4 py-2">{invoice.description}</td>
-            <td className="border border-gray-200 px-4 py-2">
-              {new Date(invoice.date).toLocaleDateString()}
-            </td>
-            <td className="border border-gray-200 px-4 py-2">{invoice.status}</td>
-            <td className="border border-gray-200 px-4 py-2">{invoice.total}</td>
-            <td className="border border-gray-200 px-4 py-2">{invoice.type}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
+    window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+  };
 
   const renderCardView = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -106,9 +84,67 @@ const InvoicePage = () => {
             >
               View
             </button>
+            <button
+              className="px-4 py-2 bg-yellow-500 text-white rounded shadow"
+              onClick={() => shareViaGmail(invoice)}
+            >
+              Share
+            </button>
           </div>
         </div>
       ))}
+    </div>
+  );
+
+  const renderTableView = () => (
+    <div className="overflow-x-auto">
+      <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="py-2 px-4 border-b">Customer</th>
+            <th className="py-2 px-4 border-b">Description</th>
+            <th className="py-2 px-4 border-b">Date</th>
+            <th className="py-2 px-4 border-b">Status</th>
+            <th className="py-2 px-4 border-b">Total</th>
+            <th className="py-2 px-4 border-b">Type</th>
+            <th className="py-2 px-4 border-b">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {invoices.map((invoice) => (
+            <tr key={invoice.id}>
+              <td className="py-3 px-4 border-b">{invoice.customer}</td>
+              <td className="py-3 px-4 border-b">{invoice.description}</td>
+              <td className="py-3 px-4 border-b">{new Date(invoice.date).toLocaleDateString()}</td>
+              <td className="py-3 px-4 border-b">{invoice.status}</td>
+              <td className="py-3 px-4 border-b">₹{invoice.total}</td>
+              <td className="py-3 px-4 border-b">{invoice.type}</td>
+              <td className="py-3 px-4 border-b">
+                <div className="flex gap-2">
+                  <button
+                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                    onClick={() => downloadPDF(invoice)}
+                  >
+                    Download PDF
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-green-500 text-white rounded"
+                    onClick={() => openModal(invoice)}
+                  >
+                    View
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-yellow-500 text-white rounded"
+                    onClick={() => shareViaGmail(invoice)}
+                  >
+                    Share
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 

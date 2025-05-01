@@ -21,6 +21,7 @@ import { RoleProvider } from "./RoleContext";
 import Management from "./pages/Managementcopy";
 import InventoryManagementCopy from "./pages/InventorymanageCopy";
 import InventoryPage from "./pages/InventorymanageCopy";
+import InvoicePage from "./pages/AdminPages/InvoicePageCopy";
 function App() {
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true); // ⬅️ new loading state
@@ -52,15 +53,12 @@ function App() {
           <Route path="/dashboard/:role/*" element={<Layout role={role} />}>
             <Route path="system-overview" element={<TotalUserAdmin />} />
             <Route path="production-stats" element={<TotalUserAdmin />} />
-            <Route path="invoices" element={<Invoices />} />
+            <Route path="invoices" element={<InvoicePage />} />
             <Route path="shipments" element={<ShipmentTrackingDashboard />} />
             <Route path="order-view" element={<OrderManagement />} />
             {/* <Route path="stock-needs" element={<StockLayout role={role} />} /> */}
             <Route path="teams-data" element={<TeamDataPage />} />
-            <Route
-              path="inventory-management"
-              element={<InventoryPage/>}
-            />
+            <Route path="inventory-management" element={<InventoryPage />} />
             <Route path="assign-tasks" element={<TaskAssignment />} />
             <Route path="logs" element={<Logs />} />
             <Route path="security-settings" element={<SecuritySettings />} />

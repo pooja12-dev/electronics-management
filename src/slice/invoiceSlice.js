@@ -1,0 +1,47 @@
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
+
+export const fetchInvoices = createAsyncThunk('invoices/fetchInvoices', async () => {
+  const invoiceCollection = collection(db, 'invoices');
+  const querySnapshot = await getDocs(invoiceCollection);
+  return querySnapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      customer: data.Customer,
+      description: data.Description,
+      date: data.date.toDate().toISOString(), // Convert to ISO string
+      status: data.status,
+      total: data.total,
+      type: data.type,
+    };
+  });
+});
+
+const invoiceSlice = createSlice({
+  name: 'invoices',
+  initialState: {
+    data: [],
+    loading: false,
+    error: null,
+  },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchInvoices.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchInvoices.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload;
+      })
+      .addCase(fetchInvoices.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      });
+  },
+});
+
+export default invoiceSlice.reducer;

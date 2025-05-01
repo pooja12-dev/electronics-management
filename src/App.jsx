@@ -20,6 +20,7 @@ import PricingPage from "./pages/AdminPages/PricingPage";
 import { RoleProvider } from "./RoleContext";
 import Management from "./pages/Managementcopy";
 import InventoryManagementCopy from "./pages/InventorymanageCopy";
+import InventoryPage from "./pages/InventorymanageCopy";
 function App() {
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true); // ⬅️ new loading state
@@ -58,7 +59,7 @@ function App() {
             <Route path="teams-data" element={<TeamDataPage />} />
             <Route
               path="inventory-management"
-              element={<InventoryDashboard/>}
+              element={<InventoryPage/>}
             />
             <Route path="assign-tasks" element={<TaskAssignment />} />
             <Route path="logs" element={<Logs />} />

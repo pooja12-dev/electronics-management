@@ -1,20 +1,19 @@
-import React, { useState } from 'react';
-import { addProduct } from '../../services/inventoryService';
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setProducts } from "../../slice/inventorySlice";
+import { addDoc, collection } from "firebase/firestore";
+import { db } from "../../firebase";
 
 const AddProductForm = () => {
+  const dispatch = useDispatch();
+  const inventory = useSelector((state) => state.inventory.data);
   const [product, setProduct] = useState({
-    productCategory: '',
-    productDesc: '',
-    productId: '',
-    productName: '',
-    productQty: '',
-    productSupplier: '',
-    onOrder: '',
-    allocated: '',
-    returns: '',
-    inStore: '',
-    expected: '',
-    status: '',
+    productCategory: "",
+    productDesc: "",
+    productId: "",
+    productName: "",
+    productQty: "",
+    productSupplier: "",
   });
 
   const handleChange = (e) => {
@@ -25,76 +24,67 @@ const AddProductForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const formattedProduct = {
+      const newProduct = {
         ...product,
         productId: Number(product.productId),
         productQty: Number(product.productQty),
-        onOrder: Number(product.onOrder),
-        allocated: Number(product.allocated),
-        returns: Number(product.returns),
-        inStore: Number(product.inStore),
-        expected: Number(product.expected),
+        createdAt: new Date().toISOString(),
       };
-      await addProduct(formattedProduct);
-      alert('Product added successfully!');
+
+      console.log("[AddProductForm] Adding Product to Firestore: ", newProduct);
+      const docRef = await addDoc(collection(db, "inventory"), newProduct);
+      console.log("[AddProductForm] Product Added with ID: ", docRef.id);
+
+      const updatedInventory = [...inventory, { ...newProduct, id: docRef.id }];
+      dispatch(setProducts(updatedInventory)); // Update Redux State
+      console.log("[AddProductForm] Updated Redux Inventory: ", updatedInventory);
+
       setProduct({
-        productCategory: '',
-        productDesc: '',
-        productId: '',
-        productName: '',
-        productQty: '',
-        productSupplier: '',
-        onOrder: '',
-        allocated: '',
-        returns: '',
-        inStore: '',
-        expected: '',
-        status: '',
+        productCategory: "",
+        productDesc: "",
+        productId: "",
+        productName: "",
+        productQty: "",
+        productSupplier: "",
       });
     } catch (error) {
-      console.error('Error adding product:', error);
-      alert('Failed to add product.');
+      console.error("[AddProductForm] Error Adding Product: ", error);
+      alert("Failed to add product.");
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-white p-6 rounded-lg shadow-md mx-4 sm:mx-auto max-w-sm sm:max-w-md lg:max-w-lg"
-    >
-      <h2 className="text-xl font-bold text-gray-700 mb-4 text-center">Add New Product</h2>
-      {/* Existing fields */}
-      {['productName', 'productId', 'productDesc', 'productCategory', 'productQty', 'productSupplier'].map((field, index) => (
-        <div className="mb-4" key={index}>
-          <label className="block text-gray-600 font-medium mb-1">{field.replace(/([A-Z])/g, ' $1')}:</label>
-          <input
-            type={field.includes('Qty') || field.includes('Id') ? 'number' : 'text'}
-            name={field}
-            value={product[field]}
-            onChange={handleChange}
-            required
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
-          />
-        </div>
-      ))}
-      {/* Additional fields */}
-      {['onOrder', 'allocated', 'returns', 'inStore', 'expected', 'status'].map((field, index) => (
-        <div className="mb-4" key={index}>
-          <label className="block text-gray-600 font-medium mb-1">{field.replace(/([A-Z])/g, ' $1')}:</label>
-          <input
-            type={field === 'status' ? 'text' : 'number'}
-            name={field}
-            value={product[field]}
-            onChange={handleChange}
-            required
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
-          />
-        </div>
-      ))}
-      <button
-        type="submit"
-        className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-      >
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <input
+        name="productName"
+        value={product.productName}
+        onChange={handleChange}
+        placeholder="Product Name"
+        required
+      />
+      <input
+        name="productCategory"
+        value={product.productCategory}
+        onChange={handleChange}
+        placeholder="Product Category"
+        required
+      />
+      <input
+        name="productQty"
+        value={product.productQty}
+        onChange={handleChange}
+        placeholder="Quantity"
+        type="number"
+        required
+      />
+      <input
+        name="productSupplier"
+        value={product.productSupplier}
+        onChange={handleChange}
+        placeholder="Supplier"
+        required
+      />
+      <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded-md">
         Add Product
       </button>
     </form>

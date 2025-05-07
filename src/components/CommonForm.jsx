@@ -222,35 +222,46 @@ const CommonForm = ({ onRoleSelect }) => {
   };
 
   return (
-    <div className="w-full max-w-md">
-      <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-        <h2 className="text-lg font-medium text-gray-700 mb-4">
-          {isLogin ? "Login as:" : "Register as:"}
-        </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-2">
-          {roles.map((role) => (
-            <div
-              key={role.id}
-              onClick={() => handleRoleSelection(role.id)}
-              className={`cursor-pointer rounded-lg border-2 p-3 flex flex-col items-center ${
-                selectedRole === role.id
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200"
-              }`}
-            >
-              <div className="text-xl mb-1">{role.icon}</div>
-              <span className="font-medium text-sm text-center">
-                {role.label}
-              </span>
-            </div>
-          ))}
-        </div>
-        {selectedRole && (
-          <div className="text-green-500 font-medium text-center mt-2">
-            Selected role: {selectedRole}
-          </div>
-        )}
+    <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+      <div className="hidden md:flex md:w-1/2 bg-white justify-center items-center relative">
+        <img
+          src="/download.jpg" // Replace with your image URL or path
+          alt="Welcome Image"
+          className="object-cover w-full h-full rounded-l-xl" // Ensures responsiveness and coverage
+        />
       </div>
+
+      <div className="w-full md:w-1/2 flex items-center justify-center p-4 sm:p-6 md:p-8 lg:p-12">
+        <div className="w-full max-w-md">
+          {/* Role Selection */}
+          <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+            <h2 className="text-lg font-medium text-gray-700 mb-4">
+              Login as:
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-2">
+              {roles.map((role) => (
+                <div
+                  key={role.id}
+                  onClick={() => handleRoleSelection(role.id)}
+                  className={`cursor-pointer rounded-lg border-2 p-3 flex flex-col items-center ${
+                    selectedRole === role.id
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200"
+                  }`}
+                >
+                  <div className="text-xl mb-1">{role.icon}</div>
+                  <span className="font-medium text-sm text-center">
+                    {role.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+            {selectedRole && (
+              <div className="text-green-500 font-medium text-center mt-2">
+                Selected role: {selectedRole}
+              </div>
+            )}
+          </div>
 
       <form
         onSubmit={isLogin ? handleLogin : handleRegister}

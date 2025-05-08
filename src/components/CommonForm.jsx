@@ -222,13 +222,15 @@ const CommonForm = ({ onRoleSelect }) => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
-      <div className="hidden md:flex md:w-1/2 bg-white justify-center items-center relative">
-        <img
-          src="/download.jpg" // Replace with your image URL or path
-          alt="Welcome Image"
-          className="object-cover w-full h-full rounded-l-xl" // Ensures responsiveness and coverage
-        />
+    <>
+      <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+        <div className="hidden md:flex md:w-1/2 bg-white justify-center items-center relative">
+          <img
+            src="/download.jpg" // Replace with your image URL or path
+            alt="Welcome Image"
+            className="object-cover w-full h-full rounded-l-xl" // Ensures responsiveness and coverage
+          />
+        </div>
       </div>
 
       <div className="w-full md:w-1/2 flex items-center justify-center p-4 sm:p-6 md:p-8 lg:p-12">
@@ -262,100 +264,102 @@ const CommonForm = ({ onRoleSelect }) => {
               </div>
             )}
           </div>
+        </div>
 
-      <form
-        onSubmit={isLogin ? handleLogin : handleRegister}
-        className="bg-white rounded-xl shadow-md p-6"
-      >
-        <h2 className="text-lg font-medium text-gray-700 mb-4">
-          Enter Your Credentials
-        </h2>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Name
-          </label>
-          <input
-            id="registerName"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            placeholder="Enter your name"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            placeholder="Enter your email"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            placeholder="Enter your password"
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          disabled={isLoading}
+        <form
+          onSubmit={isLogin ? handleLogin : handleRegister}
+          className="bg-white rounded-xl shadow-md p-6"
         >
-          {isLoading ? "Loading..." : isLogin ? "Login" : "Register"}
-        </button>
-      </form>
-      {!isLogin ? (
-        <div className="mt-4">
+          <h2 className="text-lg font-medium text-gray-700 mb-4">
+            Enter Your Credentials
+          </h2>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">
+              Name
+            </label>
+            <input
+              id="registerName"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              placeholder="Enter your name"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
           <button
-            onClick={() => handleGoogleSignIn(selectedRole)}
-            className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            disabled={isLoading}
           >
-            Sign in with Google
+            {isLoading ? "Loading..." : isLogin ? "Login" : "Register"}
+          </button>
+        </form>
+        {!isLogin ? (
+          <div className="mt-4">
+            <button
+              onClick={() => handleGoogleSignIn(selectedRole)}
+              className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            >
+              Sign in with Google
+            </button>
+          </div>
+        ) : (
+          <div className="mt-4">
+            <button
+              onClick={handleGoogleLogin}
+              className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            >
+              Login in with Google
+            </button>
+          </div>
+        )}
+        <div className="mt-4 text-center">
+          <button
+            className="text-blue-600 underline"
+            onClick={() => setIsLogin(!isLogin)}
+          >
+            {isLogin
+              ? "Don't have an account? Register"
+              : "Already have an account? Login"}
           </button>
         </div>
-      ) : (
-        <div className="mt-4">
-          <button
-            onClick={handleGoogleLogin}
-            className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-          >
-            Login in with Google
-          </button>
-        </div>
-      )}
-      <div className="mt-4 text-center">
-        <button
-          className="text-blue-600 underline"
-          onClick={() => setIsLogin(!isLogin)}
-        >
-          {isLogin
-            ? "Don't have an account? Register"
-            : "Already have an account? Login"}
-        </button>
       </div>
-    </div>
+    </>
   );
 };
 
